@@ -1,0 +1,120 @@
+{
+  "autonomous_source": "04-px4-ulog.ulg",
+  "autonomous_modes": {
+    "4": 34,
+    "14": 137,
+    "18": 15
+  },
+  "autonomous_parameters": {
+    "MPC_POS_MODE": 4,
+    "EKF2_GPS_CTRL": 5,
+    "EKF2_OF_CTRL": 1,
+    "EKF2_EV_CTRL": 0,
+    "EKF2_RNG_CTRL": 1,
+    "COM_RC_IN_MODE": 1,
+    "COM_RC_OVERRIDE": 1
+  },
+  "manual_logs": [
+    {
+      "file": "px4_log_00155_20260827T081434Z.ulg",
+      "modes": [
+        2,
+        4,
+        17,
+        18
+      ],
+      "MPC_POS_MODE": 4
+    },
+    {
+      "file": "px4_log_00156_20260827T100828Z.ulg",
+      "modes": [
+        2
+      ],
+      "MPC_POS_MODE": 4
+    },
+    {
+      "file": "px4_log_00157_20260827T101027Z.ulg",
+      "modes": [
+        2
+      ],
+      "MPC_POS_MODE": 4
+    },
+    {
+      "file": "px4_log_00158_20260827T101311Z.ulg",
+      "modes": [
+        2,
+        4,
+        17,
+        18
+      ],
+      "MPC_POS_MODE": 4
+    },
+    {
+      "file": "px4_log_00159_20260827T101857Z.ulg",
+      "modes": [
+        1,
+        2,
+        17
+      ],
+      "MPC_POS_MODE": 4
+    },
+    {
+      "file": "px4_log_00160_20260827T102222Z.ulg",
+      "modes": [
+        2
+      ],
+      "MPC_POS_MODE": 4
+    },
+    {
+      "file": "px4_log_00161_20260827T102755Z.ulg",
+      "modes": [
+        2,
+        4
+      ],
+      "MPC_POS_MODE": 4
+    },
+    {
+      "file": "px4_log_00162_20260830T040428Z.ulg",
+      "modes": [
+        1
+      ],
+      "MPC_POS_MODE": 4
+    },
+    {
+      "file": "px4_log_00163_20260830T055243Z.ulg",
+      "modes": [
+        2
+      ],
+      "MPC_POS_MODE": 4
+    },
+    {
+      "file": "px4_log_00164_20260830T055259Z.ulg",
+      "modes": [
+        2
+      ],
+      "MPC_POS_MODE": 4
+    },
+    {
+      "file": "px4_log_00165_20260830T055542Z.ulg",
+      "modes": [
+        2
+      ],
+      "MPC_POS_MODE": 4
+    },
+    {
+      "file": "px4_log_00166_20260830T060141Z.ulg",
+      "modes": [
+        2
+      ],
+      "MPC_POS_MODE": 4
+    },
+    {
+      "file": "px4_log_00167_20260830T060650Z.ulg",
+      "modes": [
+        2,
+        4
+      ],
+      "MPC_POS_MODE": 4
+    }
+  ]
+}
