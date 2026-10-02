@@ -183,6 +183,7 @@ class Mission:
                 return "nonfinite estimate"
         try:
             r=s.pose.r
+            fc_r=s.fc_pose.r
             if not np.isfinite(s.pose.pose_cov).all() or not np.isfinite(s.pose.twist_cov).all():
                 return "nonfinite covariance"
             if r[2,2] < math.cos(.35):
@@ -197,7 +198,7 @@ class Mission:
             return "height out of envelope"
         if np.linalg.norm(s.pose.v) > p.max_velocity:
             return "excess estimated speed"
-        if abs(wrap(yaw(s.pose.r)-yaw(s.fc_pose.r))) > .17:
+        if abs(wrap(yaw(r)-yaw(fc_r))) > .17:
             return "FC/VIO yaw disagreement"
         if not s.ready:
             return s.reason or "sensor / fusion readiness lost"

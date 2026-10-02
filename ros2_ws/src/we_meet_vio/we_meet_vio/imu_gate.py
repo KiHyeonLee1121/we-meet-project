@@ -40,8 +40,8 @@ class ImuGate(Node):
         if not self.streaming:
             valid=valid and 8<np.linalg.norm(vector(msg.linear_acceleration))<12
         valid=bool(valid and self.guard.feed(stamp(msg),now))
-        if self.streaming and not valid:
-            self.failed="IMU source/time invalid after streaming; restart VIO pipeline disarmed"
+        if self.streaming and (not valid or not self.guard.ready(now)):
+            self.failed="IMU source/time/rate invalid after streaming; restart VIO pipeline disarmed"
         if self.failed:
             return
         if valid and self.guard.ready(now):

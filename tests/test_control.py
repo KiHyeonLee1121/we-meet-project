@@ -101,6 +101,13 @@ class ControlTests(unittest.TestCase):
         self.assertEqual(out.state,"LAND")
         self.assertIn("reset",out.reason)
 
+    def test_invalid_fc_orientation_aborts_without_throwing(self):
+        m,s=self.running()
+        s.fc_pose=replace(s.fc_pose,q=np.zeros(4))
+        out=m.step(100.025,s)
+        self.assertEqual(out.state,"LAND")
+        self.assertIn("orientation",out.reason)
+
     def test_clock_gap(self):
         m,s=self.running()
         out=m.step(100.5,sample(100.5,[0,0,3]))

@@ -2,7 +2,7 @@
 
 ## 이 작업 환경에서 실행한 검사
 
-- 독립 제어·좌표·센서·지도·검출·교정 파일/시각 계약에 대한 unittest 51개: **50개 통과, 1개 환경 제한으로 skip**.
+- 독립 제어·좌표·센서·지도·검출·교정 파일/시각 계약에 대한 unittest 52개: **51개 통과, 1개 환경 제한으로 skip**.
 - 생략한 1개는 실제 Unix socket에 640×480 프레임을 보내는 검사입니다. 이 작업 환경은 socket 생성 syscall을 차단합니다. binary packet codec/크기/오류와 원 촬영 stamp 변환은 통과했습니다. GitHub의 Linux/Jazzy CI에 같은 실제 송수신 검사를 포함했습니다.
 - 전체 Python/launch 문법 compile 확인.
 - 단순 이동 모델에서 `PRESTREAM → OFFBOARD → ARM → TAKEOFF → STABILIZE → APPROACH → BLEND → ALIGN → HOLD → LAND → DONE`, 연속 5초 hold 확인. 초기 yaw 0/약90°/−160°와 작은 일정 외란 조건도 통과.

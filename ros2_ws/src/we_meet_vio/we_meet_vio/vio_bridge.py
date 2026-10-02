@@ -8,7 +8,7 @@ from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
 from std_msgs.msg import String
 from mavros_msgs.msg import State, TimesyncStatus
-from tf2_ros import Buffer,TransformListener
+from tf2_ros import Buffer,TransformListener,TransformException
 from rclpy.time import Time
 from .geometry import Pose, Alignment, covariance,rotation
 from .health import StreamGuard, ClockGuard
@@ -75,7 +75,10 @@ class VioBridge(Node):
             self.fc.r
             self.fc_stamp=stamp(msg)
         except ValueError as e:
-            self.failed=str(e)
+            self.fc=None
+            self.fc_stamp=0.
+            if self.armed or self.align.a is not None:
+                self.failed=str(e)
 
     def sync(self,msg):
         self.sync_stamp=self.now_s()
@@ -114,6 +117,8 @@ class VioBridge(Node):
             if not self.clock.check(now,time.monotonic()):
                 raise ValueError("ROS clock stepped; restart all streams disarmed")
             source=odom_pose(msg)
+            if not np.isfinite(np.r_[source.p,source.v,source.omega]).all():
+                raise ValueError("nonfinite OpenVINS state; not forwarded to FC")
             covariance(source.pose_cov)
             covariance(source.twist_cov)
             accepted=self.guards["vio"].feed(source.stamp,now)
@@ -157,10 +162,11 @@ class VioBridge(Node):
     def sensor_ready(self,now):
         return (not self.failed and self.align.a is not None and
                 all(g.ready(now) for g in self.guards.values()) and
-                self.frames_ok and self.vision_owner_ok and self.vision_subscriber_ok and now-self.sync_stamp < 1.5 and self.rtt < 10 and self.clock.check(now,time.monotonic()))
+                self.frames_ok and self.vision_owner_ok and self.vision_subscriber_ok and now-self.sync_stamp < 1.5 and self.rtt < 10 and not self.clock.failed)
 
     def report(self):
         now=self.now_s()
+        self.clock.check(now,time.monotonic()) # pair clocks before TF/graph lookups take time
         permitted=1 if self.fc_pub else 0
         self.vision_subscriber_ok=self.count_subscribers(self.ns+"/odometry/out")>=1
         self.vision_owner_ok=(self.count_publishers(self.ns+"/odometry/out")<=permitted and
@@ -177,10 +183,12 @@ class VioBridge(Node):
                 self.frames_ok=(np.allclose(rotation(quaternion(world.rotation)),[[0,1,0],[1,0,0],[0,0,-1]],atol=1e-5) and
                                 np.allclose(rotation(quaternion(body.rotation)),np.diag([1.,-1,-1]),atol=1e-5) and
                                 np.linalg.norm(vector(world.translation))+np.linalg.norm(vector(body.translation))<1e-5)
-            except (ValueError,RuntimeError):
+            except (ValueError,RuntimeError,TransformException):
                 self.frames_ok=False
         ready=self.sensor_ready(now)
         reasons=[self.failed] if self.failed else []
+        if self.align.a is None:
+            reasons.append("waiting for disarmed, fresh valid FC pose to latch alignment")
         reasons += [name+": "+(g.error or "rate/window/staleness") for name,g in self.guards.items() if not g.ready(now)]
         if now-self.sync_stamp >= 1.5 or self.rtt >= 10:
             reasons.append("MAVROS time synchronisation missing/high RTT")
