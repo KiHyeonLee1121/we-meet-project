@@ -1,18 +1,19 @@
 {
-  "core_version": "0.2.0",
+  "core_version": "0.3.0",
   "source": "identical shared controller in test-flying-v1 and test-flying-v2",
   "files_sha256": {
-    "config/ascent_only.yaml": "9a927d53c87e876330c292499dc2a029038d9560df98772d324b377348efdf92",
-    "config/velocity_trial.yaml": "d898c2882fa623451ba454dc1f6527bfa27019295fe1e8fded16bc0716d32adf",
-    "package.xml": "263f4c6c57e755f684e90b6e42246853b9380d5118a037322825f56af08233b7",
+    "config/ascent_only.yaml": "1cee885d2150e43272bc9fee1e864acfa83785de48fb79046f8e38c0595d753d",
+    "config/velocity_trial.yaml": "19286d04900732e7466888e992158f400b97ee105c278dd23a64ec619b6b8986",
+    "package.xml": "1f5fb93322bb8d182d523b9fcf48a4c59164f46c66fe6e5e26886e5277a5dda0",
     "resource/we_meet_flight_core": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "setup.cfg": "dd950512970414902026165fc652a978d7359f02ad443a720dd508727b0e9ef8",
-    "setup.py": "56a5fac0a83fb182d0b154c3fc33856516d199f6d3f8832d7cf84aa7467460d2",
+    "setup.py": "d805c01c90487a0e2af6ca1a53760291a9e01218816d1314adb350b8c7511483",
     "we_meet_flight_core/__init__.py": "18011853a0bbf4add14b07a05a1c3ee9dca74c2a814d3a2d8c5d86cbdeaa0025",
-    "we_meet_flight_core/config.py": "db8b602ab81bf6fbee7c923e2b130683fd3154346f89658b8d603fef3d7149a3",
+    "we_meet_flight_core/config.py": "884ca3c9340bfd0984feebfc7b7aa5a07a5dad2fb81a776b48ad5381c9788ddd",
     "we_meet_flight_core/control.py": "d6b7ac9dd46086b8a5ee803ca840e47587cf35d4ba45fda13e65e1628ffca6f3",
-    "we_meet_flight_core/journal.py": "5e93017658a9aa6154ff87e3069a97c7af08bfcb88945118f82c51440947bcc2",
-    "we_meet_flight_core/mission.py": "f796eb07b89981d87e6bcc215b220b3904b2e89deda78d397ba3bd2a1a2cf364",
-    "we_meet_flight_core/node.py": "695f5480ab880094e58cd9e63547294a6b61b317dff0d715164553bdf1d0fd85"
+    "we_meet_flight_core/journal.py": "d4c531f8ac1d6c7321b818e9a925f7f790c1950935fedc774e2e637cd1f1be76",
+    "we_meet_flight_core/mission.py": "b3d71112ac4b67cf49a4968dccddcaeec1e512d142f506277754a841a3afb320",
+    "we_meet_flight_core/node.py": "a22b36f416ed96d364db219acf876f94f2e97cf41c003b37afc9036a53c3564a",
+    "we_meet_flight_core/telemetry.py": "b3dc51a857c736ed5e0e6c239396d9b76176566396c89e9079991994cdb0ed12"
   }
 }

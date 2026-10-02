@@ -16,7 +16,7 @@ from we_meet_flight.image_io import image_to_bgr
 from we_meet_flight.mission import Mission, Sensors
 from we_meet_flight.vision import Detection, Observation, PanelDetector, TargetTracker
 from offline_demo import run_demo
-from test_mission import healthy
+from test_mission import healthy, follow_command
 
 
 class Harness:
@@ -28,6 +28,7 @@ class Harness:
 
     def tick(self, dt=0.05, visible=None, ex=0, ey=0, publish=True):
         self.now += dt
+        follow_command(self.s, self.m, self.now)
         if visible is not None:
             self.s.observation = Observation(self.now, round(self.now*100), visible, ex, ey, 0.1, 0.9, 1)
         cmd = self.m.step(self.now, self.s)
@@ -72,6 +73,7 @@ class CommonLogicParityTests(unittest.TestCase):
             s.yaw = visual.s.yaw = 0.015*math.sin(i/11)
             s.height_m = visual.s.height_m = 2.8 if i < 80 else 3.0
             a = visual.tick(dt=periods[i % len(periods)], visible=False)
+            follow_command(s, core, visual.now)
             b = core.step(visual.now, s)
             # Camera-enabled no-target flight intentionally fails after common BRAKE.
             if vision and core.state == 'ZERO_VELOCITY_HOLD':
@@ -110,6 +112,8 @@ class CommonLogicParityTests(unittest.TestCase):
         now = 0
         for i in range(1200):
             now += [0.03, 0.08, 0.05, 0.10, 0.04][i % 5]
+            follow_command(sa, a, now)
+            follow_command(sb, b, now)
             ca, cb = a.step(now, sa), b.step(now, sb)
             self.assertEqual(ca, cb)
             if ca.publish:
@@ -168,15 +172,32 @@ class CameraFlightTests(unittest.TestCase):
     def test_hold_starts_at_actual_zero_publication(self):
         h = Harness(); h.to_state('ADVANCE'); h.to_state('ALIGN', visible=True, ey=-0.4)
         for _ in range(30): h.tick(visible=True, ey=-0.4)
+        # Decelerate with successful publications until the last non-zero step.
+        while math.hypot(*h.m.xy) > h.c.horizontal_accel_mps2*0.05+1e-12:
+            h.tick(visible=True)
         h.tick(visible=True, publish=False)
         self.assertIsNone(h.m.hold_since)
-        while math.hypot(*h.m.xy) > 0:
-            h.tick(visible=True, publish=False)
+        self.assertEqual(h.m.xy, (0.0, 0.0))
         self.assertIsNone(h.m.hold_since)
         # Manually record zero publication with real dispatch latency.
         cmd = h.tick(visible=True, publish=False)
         h.m.record_publish(cmd, h.now+0.01)
         self.assertAlmostEqual(h.m.hold_since, h.now+0.01)
+
+    def test_visual_hold_restarts_when_estimated_motion_exceeds_limit(self):
+        h = Harness(); h.to_state('ADVANCE'); h.to_state('VISUAL_HOLD', visible=True)
+        for _ in range(40): h.tick(visible=True)
+        first = h.m.hold_since
+        h.now += .05; h.s.odometry_stamp_s = h.now
+        h.s.velocity_enu = (.25, 0, 0)
+        h.s.observation = Observation(h.now, round(h.now*100), True, 0, 0, .1, .9, 1)
+        cmd = h.m.step(h.now, h.s); h.m.record_publish(cmd, h.now)
+        self.assertIsNone(h.m.hold_since)
+        self.assertEqual((cmd.vx, cmd.vy), (0, 0))
+        h.tick(visible=True)
+        self.assertGreater(h.m.hold_since, first)
+        for _ in range(80): h.tick(visible=True)
+        self.assertEqual(h.m.state, 'VISUAL_HOLD')
 
     def test_locked_panel_loss_during_braking_never_resumes_forward(self):
         h = Harness(); h.to_state('ADVANCE')

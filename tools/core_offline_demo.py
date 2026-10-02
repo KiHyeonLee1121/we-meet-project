@@ -16,7 +16,10 @@ def run_demo(output=None, ascent_only=False, irregular=False):
     m = Mission(c)
     s = Sensors(connected=True, mode='POSCTL', landed=True, state_age=0, landed_age=0,
                 estimator_valid=True, estimator_age=0, yaw=0.3, yaw_age=0, imu_age=0,
-                height_m=0.3, height_rate_mps=0, range_age=0, battery_remaining=1, battery_age=0)
+                height_m=0.3, height_rate_mps=0, range_age=0, battery_remaining=1, battery_age=0,
+                odometry_age=0, odometry_stamp_s=0, fc_reset_counter=2,
+                position_enu=(0, 0, 0), velocity_enu=(0, 0, 0), position_sigma_m=0.1,
+                velocity_sigma_mps=0.05, gps_age=0, gps_sigma_m=0.2, yaw_rate_rps=0)
     now, x, y, z = 0.0, 0.0, 0.0, 0.3
     previous = None
     m.start(now, s, s.yaw)
@@ -38,6 +41,8 @@ def run_demo(output=None, ascent_only=False, irregular=False):
         s.height_m, s.height_rate_mps = z, (z-old_height)/dt
         if s.armed and z > 0.35:
             s.landed = False
+        s.position_enu, s.velocity_enu = (x, y, z), ((previous.vx if previous else 0), (previous.vy if previous else 0), s.height_rate_mps)
+        s.odometry_stamp_s = now
         cmd = m.step(now, s)
         segment = m.record_publish(cmd, now) if cmd.publish else None
         if cmd.request == 'OFFBOARD':

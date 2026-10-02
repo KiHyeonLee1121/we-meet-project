@@ -47,11 +47,30 @@ class Config:
     mission_timeout_s: float = 110.0
     landing_timeout_s: float = 35.0
     minimum_battery_remaining: float = 0.15
+    # Provisional acceptance/abort limits. Verify against the actual aircraft.
+    fc_odometry_timeout_s: float = 0.3
+    maximum_position_sigma_m: float = 0.5
+    maximum_velocity_sigma_mps: float = 0.2
+    gps_accuracy_required: bool = True
+    gps_timeout_s: float = 2.0
+    maximum_gps_sigma_m: float = 0.5
+    horizontal_tracking_limit_m: float = 1.0
+    horizontal_tracking_dwell_s: float = 0.5
+    position_velocity_residual_limit_m: float = 0.5
+    position_velocity_window_s: float = 1.0
+    yaw_abort_error_rad: float = 0.261799388
+    yaw_abort_rate_rad_s: float = 0.610865238
+    yaw_abort_dwell_s: float = 0.5
+    lidar_velocity_check_enabled: bool = True
+    lidar_velocity_disagreement_mps: float = 0.25
+    lidar_velocity_disagreement_s: float = 0.75
+    hold_horizontal_speed_mps: float = 0.15
+    hold_vertical_speed_mps: float = 0.10
 
     def __post_init__(self):
         for field in fields(Config):
             name, value = field.name, getattr(self, field.name)
-            if name in ('advance_enabled', 'lidar_input_is_vertical_height'):
+            if name in ('advance_enabled', 'lidar_input_is_vertical_height', 'gps_accuracy_required', 'lidar_velocity_check_enabled'):
                 if not isinstance(value, bool):
                     raise ValueError(f'{name} must be boolean')
                 continue
@@ -71,6 +90,10 @@ class Config:
             raise ValueError('command distance tolerance must be smaller than distance')
         if self.forward_speed_mps*self.maximum_tick_gap_s > self.commanded_distance_tolerance_m:
             raise ValueError('command distance tolerance must cover the configured maximum publish interval')
+        if not self.yaw_tolerance_rad < self.yaw_abort_error_rad < math.pi:
+            raise ValueError('yaw abort angle must exceed hold tolerance and be less than pi')
+        if self.position_velocity_window_s <= self.fc_odometry_timeout_s:
+            raise ValueError('position/velocity window must exceed odometry timeout')
 
 
 def load_config(path):

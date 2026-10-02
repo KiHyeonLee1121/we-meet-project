@@ -31,7 +31,7 @@ def load_adapter():
     modules['ament_index_python.packages'].get_package_share_directory = lambda _: '/unused'
     for name, symbols in [('geometry_msgs.msg', ['PoseStamped', 'TwistStamped']),
                           ('sensor_msgs.msg', ['BatteryState', 'NavSatFix', 'Imu', 'Range']),
-                          ('mavros_msgs.msg', ['EstimatorStatus', 'ExtendedState', 'State']),
+                          ('mavros_msgs.msg', ['EstimatorStatus', 'ExtendedState', 'Mavlink', 'State']),
                           ('mavros_msgs.srv', ['CommandBool', 'SetMode']),
                           ('rcl_interfaces.srv', ['GetParameters']), ('std_msgs.msg', ['String']),
                           ('std_srvs.srv', ['Trigger'])]:

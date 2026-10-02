@@ -1,0 +1,34 @@
+{
+  "cases": {
+    "gnss_preflight": {
+      "detected": true,
+      "sigma_m": 1.783,
+      "reason": "GNSS covariance missing/stale or too uncertain for this trial"
+    },
+    "early_yaw_excursion": {
+      "detected": true,
+      "source_seconds_after_ASCEND": 7.400003,
+      "reason": "sustained heading error/angular speed; stop trial and request LAND"
+    },
+    "fc_reset": {
+      "detected": true,
+      "source_ulog_seconds": 15.684643,
+      "combined_counter": 12,
+      "yaw_counter_log_only": 3,
+      "reason": "FC estimator reset counter changed; fixed reference not shifted"
+    },
+    "position_velocity_inconsistency": {
+      "detected": true,
+      "source_ulog_seconds": 21.085049,
+      "reason": "FC position change inconsistent with integrated FC velocity"
+    },
+    "lidar_fc_vertical_disagreement": {
+      "detected": true,
+      "source_seconds_after_first_ROS_sample": 32.849986,
+      "reason": "persistent lidar/FC vertical velocity disagreement; verify common flat surface"
+    }
+  },
+  "ulog_sha256": "f198b8df20d16fb425e13649dc125ff80727cf621890aaa2ca3e16eb4294c6bf",
+  "full_aircraft_or_flight_validation": false,
+  "scope": "original selected scalars; isolated guard replay with synthetic healthy remaining inputs"
+}

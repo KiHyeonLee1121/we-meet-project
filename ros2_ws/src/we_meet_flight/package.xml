@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="3">
-  <name>we_meet_flight</name><version>0.2.0</version>
+  <name>we_meet_flight</name><version>0.3.0</version>
   <description>Velocity and yaw flight test with OpenCV panel alignment.</description>
   <maintainer email="maintainers@example.com">we-meet team</maintainer>
   <license>UNLICENSED</license>

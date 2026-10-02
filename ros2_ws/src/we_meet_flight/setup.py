@@ -1,7 +1,7 @@
 from glob import glob
 from setuptools import setup
 
-setup(name='we_meet_flight', version='0.2.0', packages=['we_meet_flight'],
+setup(name='we_meet_flight', version='0.3.0', packages=['we_meet_flight'],
       data_files=[('share/ament_index/resource_index/packages', ['resource/we_meet_flight']),
                   ('share/we_meet_flight', ['package.xml']),
                   ('share/we_meet_flight/config', glob('config/*.yaml')),

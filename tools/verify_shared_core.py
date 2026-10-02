@@ -21,7 +21,7 @@ def verify(root, other=None):
     if other is not None and actual != core_files(other):
         raise ValueError('downloaded branches contain different shared core files')
     identity = hashlib.sha256(json.dumps(actual, sort_keys=True).encode()).hexdigest()
-    return {'core_version': '0.2.0', 'files': len(actual), 'sha256': identity,
+    return {'core_version': '0.3.0', 'files': len(actual), 'sha256': identity,
             'other_branch_compared': other is not None}
 
 

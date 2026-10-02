@@ -13,7 +13,7 @@ from rclpy.qos import qos_profile_sensor_data
 from ament_index_python.packages import get_package_share_directory
 from geometry_msgs.msg import PoseStamped, TwistStamped
 from sensor_msgs.msg import BatteryState, Imu, NavSatFix, Range
-from mavros_msgs.msg import EstimatorStatus, ExtendedState, State
+from mavros_msgs.msg import EstimatorStatus, ExtendedState, Mavlink, State
 from mavros_msgs.srv import CommandBool, SetMode
 from rcl_interfaces.srv import GetParameters
 from std_msgs.msg import String
@@ -23,6 +23,7 @@ from .config import load_config
 from .control import quaternion_yaw, wrapped_angle_error, yaw_reset_innovation
 from .journal import Journal
 from .mission import Mission, Sensors
+from .telemetry import decode_odometry, horizontal_sigma
 
 
 class FlightNode(Node):
@@ -57,7 +58,8 @@ class FlightNode(Node):
         params = {'config_file': default, 'dry_run': True, 'flight_settings_verified': False,
                   'lidar_geometry_verified': False, 'log_directory': '~/flight_logs'+self.api_prefix,
                   'mavros_namespace': '/mavros', 'lidar_topic': '/distance/filtered',
-                  'estimator_topic': '/mavros/estimator_status'}
+                  'estimator_topic': '/mavros/estimator_status',
+                  'fc_mavlink_topic': '/mavros/mavlink_source', 'fc_system_id': 1, 'fc_component_id': 1}
         params.update(self.extra_parameters())
         for name, value in params.items():
             self.declare_parameter(name, value)
@@ -71,6 +73,11 @@ class FlightNode(Node):
         self.ns = self.get_parameter('mavros_namespace').value.rstrip('/')
         self.mission = self.mission_type(self.c)
         self.s = self.sensor_type()
+        self.fc_system_id = int(self.get_parameter('fc_system_id').value)
+        self.fc_component_id = int(self.get_parameter('fc_component_id').value)
+        if not 1 <= self.fc_system_id <= 255 or not 1 <= self.fc_component_id <= 255:
+            raise ValueError('FC MAVLink system/component IDs must be 1..255')
+        self.previous_odometry = None
         self.receipts, self.source_stamps = {}, {}
         self.yaw_samples = deque()
         self.range_samples = deque()
@@ -98,7 +105,9 @@ class FlightNode(Node):
             'lidar_geometry_verified': self.lidar_verified,
             'unix_time_s': time.time(), 'monotonic_s': time.monotonic(),
             'distance_semantics': 'integral of published forward command, NOT measured travel',
-            'software': self.package_name+' / we_meet_flight_core 0.2.0', 'mavros_namespace': self.ns,
+            'software': self.package_name+' / we_meet_flight_core 0.3.0', 'mavros_namespace': self.ns,
+            'fc_mavlink_topic': self.get_parameter('fc_mavlink_topic').value,
+            'fc_system_id': self.fc_system_id, 'fc_component_id': self.fc_component_id,
             **self.extra_metadata()})
         self.command_topic = self.ns + '/setpoint_velocity/cmd_vel'
         self.output_topic = self.api_prefix+'/debug/cmd_vel' if self.dry else self.command_topic
@@ -109,6 +118,7 @@ class FlightNode(Node):
         if estimator_topic == '/mavros/estimator_status':
             estimator_topic = self.ns+'/estimator_status'
         self.create_subscription(EstimatorStatus, estimator_topic, self.on_estimator, qos)
+        self.create_subscription(Mavlink, self.get_parameter('fc_mavlink_topic').value, self.on_fc_mavlink, qos)
         self.create_subscription(State, self.ns+'/state', self.on_state, qos)
         self.create_subscription(ExtendedState, self.ns+'/extended_state', self.on_landed, qos)
         self.create_subscription(PoseStamped, self.ns+'/local_position/pose', self.on_pose, qos)
@@ -146,15 +156,51 @@ class FlightNode(Node):
         if self.receipt('estimator', msg, self.c.state_timeout_s) is not None:
             self.s.estimator_valid = (msg.attitude_status_flag and msg.velocity_horiz_status_flag
                                       and msg.velocity_vert_status_flag and not msg.accel_error_status_flag
-                                      and not msg.const_pos_mode_status_flag)
+                                      and not msg.gps_glitch_status_flag)
+            # PX4 d6f12ad's legacy bit also includes vehicle_at_rest. Ground
+            # acceptance is checked with a fresh landed state in Mission.
+            self.s.estimator_const_pos = msg.const_pos_mode_status_flag
             self.telemetry['estimator_status'] = {name: getattr(msg, name) for name in (
                 'attitude_status_flag', 'velocity_horiz_status_flag', 'velocity_vert_status_flag',
-                'pos_horiz_rel_status_flag', 'pos_horiz_abs_status_flag', 'gps_glitch_status_flag')}
+                'pos_horiz_rel_status_flag', 'pos_horiz_abs_status_flag', 'gps_glitch_status_flag',
+                'const_pos_mode_status_flag', 'accel_error_status_flag')}
+
+    def on_fc_mavlink(self, msg):
+        odom = decode_odometry(msg, self.fc_system_id, self.fc_component_id)
+        if odom is None:
+            return
+        previous = self.previous_odometry
+        if previous and odom.timestamp_us <= previous.timestamp_us:
+            if (odom.timestamp_us < previous.timestamp_us and self.mission.state == 'IDLE'
+                    and not self.s.armed and self.s.landed and 0 <= self.s.landed_age <= self.c.landed_timeout_s):
+                previous = None  # A pre-start ground FC restart establishes a new epoch.
+            else:
+                if odom.timestamp_us < previous.timestamp_us and self.mission.state not in Mission.TERMINAL:
+                    self.s.fc_reset = True  # FC reboot/source clock rollback.
+                return  # Duplicate packets never refresh watchdog age.
+        now = self.receipt('odometry', msg, self.c.fc_odometry_timeout_s)
+        if now is None:
+            return
+        if previous and odom.reset_counter != previous.reset_counter and self.mission.state not in Mission.TERMINAL:
+            self.s.fc_reset = True
+            self.journal.append({'kind': 'fc_estimator_reset', 'time_s': now,
+                                 'old_counter': previous.reset_counter, 'new_counter': odom.reset_counter,
+                                 'semantics': 'combined attitude/position/velocity reset; yaw-only attribution unavailable'})
+        self.previous_odometry = odom
+        self.s.fc_reset_counter = odom.reset_counter
+        self.s.odometry_stamp_s = odom.timestamp_us*1e-6
+        self.s.position_enu, self.s.velocity_enu = odom.position_enu, odom.velocity_enu
+        self.s.position_sigma_m, self.s.velocity_sigma_mps = odom.position_sigma_m, odom.velocity_sigma_mps
+        self.telemetry['fc_odometry_guard'] = asdict(odom)
 
     def on_state(self, msg):
         if self.receipt('state', msg, self.c.state_timeout_s) is None:
             return
+        old_mode = self.s.mode
         self.s.connected, self.s.armed, self.s.mode = msg.connected, msg.armed, msg.mode
+        if old_mode != msg.mode:
+            self.journal.append({'kind': 'observed_mode_change', 'time_s': time.monotonic(),
+                                 'from': old_mode, 'to': msg.mode, 'armed': msg.armed})
         self.s.failsafe_observed = msg.system_status >= 5
         self.telemetry['system_status'] = msg.system_status
         self.telemetry['failsafe_semantics'] = 'MAV_STATE critical/emergency indication, not complete PX4 failsafe flags'
@@ -203,13 +249,23 @@ class FlightNode(Node):
             self.rates = msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z
             if not all(math.isfinite(v) for v in self.rates):
                 self.receipts.pop('imu', None)
+                self.s.yaw_rate_rps = math.nan
+            elif math.isfinite(self.roll) and math.isfinite(self.pitch) and abs(math.cos(self.pitch)) > 0.5:
+                self.s.yaw_rate_rps = (self.rates[1]*math.sin(self.roll)+self.rates[2]*math.cos(self.roll))/math.cos(self.pitch)
+            else:
+                self.s.yaw_rate_rps = math.nan
 
     def on_velocity(self, msg):
         if self.receipt('velocity', msg) is not None:
             self.telemetry['velocity_enu_log_only'] = [msg.twist.linear.x, msg.twist.linear.y, msg.twist.linear.z]
 
     def on_gps(self, msg):
-        if self.receipt('gps', msg, 2.0) is not None:
+        if self.receipt('gps', msg, self.c.gps_timeout_s) is not None:
+            cov = msg.position_covariance
+            known = getattr(msg, 'position_covariance_type', 0) != 0
+            self.s.gps_sigma_m = (horizontal_sigma(cov[0], 0.5*(cov[1]+cov[3]), cov[4])
+                                  if known and msg.status.status >= 0 and len(cov) == 9
+                                  and cov[0] > 0 and cov[4] > 0 else math.inf)
             self.telemetry['gps_log_only'] = {
                 'status': msg.status.status, 'service': msg.status.service,
                 'latitude': msg.latitude, 'longitude': msg.longitude, 'altitude': msg.altitude,
@@ -251,7 +307,8 @@ class FlightNode(Node):
 
     def snapshot(self, now):
         for key, field in [('estimator', 'estimator_age'), ('state', 'state_age'), ('landed', 'landed_age'), ('yaw', 'yaw_age'),
-                           ('imu', 'imu_age'), ('range', 'range_age'), ('battery', 'battery_age')]:
+                           ('imu', 'imu_age'), ('range', 'range_age'), ('battery', 'battery_age'),
+                           ('odometry', 'odometry_age'), ('gps', 'gps_age')]:
             setattr(self.s, field, now-self.receipts.get(key, -math.inf))
         self.extra_snapshot(now)
         return self.s
@@ -438,6 +495,7 @@ class FlightNode(Node):
                if self.mission.yaw_ref is not None and math.isfinite(s.yaw) else None,
                'hold_elapsed_s': now-self.mission.hold_since if self.mission.hold_since is not None else 0.0,
                'sensors': asdict(s),
+               'guard_diagnostics': getattr(self.mission, 'guard_diagnostics', {}).copy(),
                'height_error_m': self.c.target_height_m-s.height_m if math.isfinite(s.height_m) else None,
                'roll_pitch_rad': [self.roll, self.pitch],
                'telemetry': self.telemetry.copy(), 'telemetry_age_s': now-self.receipts.get('velocity', -math.inf),

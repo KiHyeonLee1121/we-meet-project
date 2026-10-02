@@ -67,7 +67,7 @@ class Mission(CoreMission):
     def extended_xy_target(self, now, s, altitude_ok, heading_ok):
         visible = self.visible(s, now)
         centered = visible and abs(s.observation.ex) <= self.c.center_half_width and abs(s.observation.ey) <= self.c.center_half_height
-        self.hold_eligible = centered and altitude_ok and heading_ok
+        self.hold_eligible = centered and altitude_ok and heading_ok and self.motion_stable(s)
         if not self.hold_eligible:
             self.hold_since = None
         if not visible:
@@ -87,7 +87,7 @@ class Mission(CoreMission):
             return body_to_enu(bf*scale, bl*scale, s.yaw)
         if self.state == 'ALIGN':
             self.transition('VISUAL_HOLD', now)
-            self.hold_eligible = altitude_ok and heading_ok
+            self.hold_eligible = altitude_ok and heading_ok and self.motion_stable(s)
         if self.hold_since is not None and now-self.hold_since >= self.c.zero_velocity_hold_s:
             self.zero_hold_completed = True
             self.begin_land(now, s, 'panel centred continuously with zero XY command for 5s', 'panel_centered_5s')

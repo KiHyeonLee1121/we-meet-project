@@ -21,7 +21,10 @@ def run_demo(output, vision=True):
     s = Sensors(estimator_valid=True, estimator_age=0, connected=True, armed=False, mode='POSCTL', landed=True,
                 state_age=0, landed_age=0, yaw=0, yaw_age=0, imu_age=0,
                 height_m=0.25, height_rate_mps=0, range_age=0,
-                battery_remaining=1, battery_age=0, camera_age=0)
+                battery_remaining=1, battery_age=0, camera_age=0,
+                odometry_age=0, odometry_stamp_s=0, fc_reset_counter=2,
+                position_enu=(0, 0, 0), velocity_enu=(0, 0, 0), position_sigma_m=0.1,
+                velocity_sigma_mps=0.05, gps_age=0, gps_sigma_m=0.2, yaw_rate_rps=0)
     detector, tracker = PanelDetector(c), TargetTracker(c)
     now = 0.0
     x, y, z = 0.0, 0.0, 0.25
@@ -55,6 +58,8 @@ def run_demo(output, vision=True):
                               (round(cx+0.225*scale), round(cy+0.3*scale)), (35, 45, 55), -1)
             frames += 1
             s.observation = tracker.update(detector.detect(frame), now, frames)
+        s.position_enu, s.velocity_enu = (x, y, z), ((previous.vx if previous else 0), (previous.vy if previous else 0), s.height_rate_mps)
+        s.odometry_stamp_s = now
         command = m.step(now, s)
         segment = m.record_publish(command, now) if command.publish else None
         if command.request == 'OFFBOARD':
