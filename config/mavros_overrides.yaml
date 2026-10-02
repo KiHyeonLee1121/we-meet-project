@@ -1,0 +1,24 @@
+/**/uas:
+  ros__parameters:
+    map_frame_id: map
+    odom_frame_id: odom
+    base_link_frame_id: base_link
+/**/local_position:
+  ros__parameters:
+    frame_id: map
+    tf.child_frame_id: base_link
+/**/imu:
+  ros__parameters:
+    frame_id: base_link
+/**/setpoint_velocity:
+  ros__parameters:
+    mav_frame: LOCAL_NED
+/**/odometry:
+  ros__parameters:
+    fcu.odom_parent_id_des: map
+    fcu.odom_child_id_des: base_link
+    fcu.map_id_des: map
+/**/time:
+  ros__parameters:
+    timesync_mode: MAVLINK
+    timesync_rate: 10.0

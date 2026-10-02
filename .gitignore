@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+ros2_ws/src/open_vins/
+config/calibration.json
+config/mount.local.yaml
+config/openvins/kalibr_*.yaml
+*.bag
+*.ulg
+flight_logs/
+.pytest_cache/
+config.local/
+config/capture.local.json

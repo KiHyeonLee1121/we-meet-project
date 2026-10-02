@@ -1,0 +1,19 @@
+# Copy locally and fill actual mounted-rig measurements. null is deliberately not runnable.
+verified: false
+T_body_imu: null       # 4x4: p_body = R_body_imu * p_imu + t_body_imu; body axes FLU
+lidar_position_body: null # [forward,left,up] metres, aligned downward sensor
+lidar_geometry_verified: false
+sensor_clock: boottime # verify SensorTimestamp against CLOCK_BOOTTIME on the actual Pi
+scaler_crop: null      # four actual integers from capture metadata, not inferred FOV
+camera_controls:
+  ExposureTime: 4000   # initial BENCH suggestion in microseconds; calibrate using actual chosen value
+  AnalogueGain: 2.0
+  LensPosition: null   # actual manual focus; IMX708 autofocus must remain disabled
+  FrameDurationLimits: [40000, 40000] # 25Hz capture
+  AeEnable: false
+  AfMode: Manual
+imu_topic: /mavros/imu/data_raw
+imu_frame: base_link  # MAVROS has already converted FRD -> FLU
+raw_imu_source_verified: false # verify HIGHRES_IMU with acceleration m/s2, gyro rad/s, gravity INCLUDED
+imu_intrinsics_already_corrected: false # true only if input already has calibrated SI values (e.g. verified FC stream)
+calibration_evidence: ""

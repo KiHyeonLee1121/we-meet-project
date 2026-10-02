@@ -1,0 +1,7 @@
+{
+  "repository": "https://github.com/rpng/open_vins.git",
+  "commit": "69488123ed9362dd44b6f28e7f4680abbff1442b",
+  "license": "GPL-3.0-or-later (upstream files remain under their original license)",
+  "patch_script": "tools/patch_openvins.py",
+  "changes": ["Jazzy .hpp headers, Eigen include dirs and C++17", "mono input SensorDataQoS depth 2", "camera pending queue capped at 2", "optional visualization threads disabled by config"]
+}

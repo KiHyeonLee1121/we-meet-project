@@ -1,0 +1,43 @@
+# Mission values are provisional test settings, not measured tuning of this vehicle.
+mavros_namespace: /mavros
+fc_world_frame: map
+log_directory: ~/flight_logs/test_flying_vio
+panel_height_m: 0.0  # measured height above flat ground; this first test supports 0..0.10m
+flight:
+  height_m: 3.0
+  distance_m: 5.0
+  hold_s: 5.0
+  forward_speed: 0.35
+  visual_speed: 0.12
+  accel: 0.25
+  vertical_speed: 0.25
+  center_half_width: 0.15
+  center_half_height: 0.15
+detector:
+  frequency_hz: 8.0
+  dark_threshold: 120
+  min_area_fraction: 0.008
+  max_area_fraction: 0.75
+  texture_min_points: 30
+  texture_min_cells: 4
+lidar:
+  port: /dev/serial/by-id/usb-Prolific_Technology_Inc._USB-Serial_Controller-if00-port0
+  baud: 115200
+  minimum_strength: 100
+  transport_delay_s: 0.0 # receipt-time approximation; quantify actual transport/processing delay
+expected_fc_parameters:
+  EKF2_EV_CTRL: 13       # horizontal position + 3D velocity + yaw (bits 0,2,3); not vision height
+  EKF2_GPS_CTRL: 0       # local VIO test; this node does NOT write parameters
+  EKF2_MAG_TYPE: 5       # external vision yaw; verify against installed PX4 firmware
+  EKF2_HGT_REF: 0        # FC barometer reference, companion LiDAR Z controller
+  EKF2_EV_NOISE_MD: 0    # transmitted covariance
+  EKF2_EV_POS_X: 0.0     # bridge already converts IMU origin to body origin
+  EKF2_EV_POS_Y: 0.0
+  EKF2_EV_POS_Z: 0.0
+  EKF2_EV_QMIN: 0        # MAVROS 2.14 ODOMETRY output does not populate quality
+  EKF2_EV_DELAY: 0.0     # EXAMPLE; measure residual delay and update expected value
+verification:
+  fc_fusion_verified: false
+  rc_recovery_verified: false
+  flight_settings_verified: false
+  evidence: "" # bench report / ULog with actual cs_ev_pos/vel/yaw confirmation

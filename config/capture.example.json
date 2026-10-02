@@ -1,0 +1,19 @@
+{
+  "resolution": [
+    640,
+    480
+  ],
+  "sensor_clock": "boottime",
+  "scaler_crop": null,
+  "camera_controls": {
+    "ExposureTime": 4000,
+    "AnalogueGain": 2,
+    "LensPosition": null,
+    "FrameDurationLimits": [
+      40000,
+      40000
+    ],
+    "AeEnable": false,
+    "AfMode": "Manual"
+  }
+}
