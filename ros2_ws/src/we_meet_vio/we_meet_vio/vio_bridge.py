@@ -24,7 +24,7 @@ class VioBridge(Node):
         self.ns=cfg["mavros_namespace"].rstrip("/")
         self.align=Alignment(cal["T_body_imu"])
         self.clock=ClockGuard()
-        self.guards={"imu":StreamGuard(180,.08,.025),
+        self.stream_guards={"imu":StreamGuard(180,.08,.025),
                      "camera":StreamGuard(18,.18,.10),
                      "camera_update":StreamGuard(12,.25,.12),
                      "vio":StreamGuard(25,.15,.08)}
@@ -93,20 +93,20 @@ class VioBridge(Node):
             self.failed="invalid IMU"
             return
         if not self.armed and not 8 < np.linalg.norm(vector(msg.linear_acceleration)) < 12:
-            self.guards["imu"].error="stationary acceleration not ~9.81m/s2; raw counts/gravity removed?"
+            self.stream_guards["imu"].error="stationary acceleration not ~9.81m/s2; raw counts/gravity removed?"
             return
-        self.guards["imu"].feed(stamp(msg),now)
+        self.stream_guards["imu"].feed(stamp(msg),now)
 
     def image(self,msg):
         if msg.header.frame_id != "camera_optical" or [msg.width,msg.height] != self.cal["resolution"]:
             self.failed="capture frame/resolution differs from calibration"
             return
-        if self.guards["camera"].feed(stamp(msg),self.now_s()):
+        if self.stream_guards["camera"].feed(stamp(msg),self.now_s()):
             self.image_stamp=stamp(msg)
 
     def update(self,msg):
         # poseimu uses IMU-clock corrected camera time, distinct from propagated odomimu.
-        if self.guards["camera_update"].feed(stamp(msg),self.now_s()):
+        if self.stream_guards["camera_update"].feed(stamp(msg),self.now_s()):
             self.update_stamp=stamp(msg)
 
     def odometry(self,msg):
@@ -121,7 +121,7 @@ class VioBridge(Node):
                 raise ValueError("nonfinite OpenVINS state; not forwarded to FC")
             covariance(source.pose_cov)
             covariance(source.twist_cov)
-            accepted=self.guards["vio"].feed(source.stamp,now)
+            accepted=self.stream_guards["vio"].feed(source.stamp,now)
             if self.last_source and source.stamp <= self.last_source.stamp:
                 raise ValueError("OpenVINS restart/time reversal; alignment must not silently relatch")
             if self.last_source:
@@ -161,7 +161,7 @@ class VioBridge(Node):
 
     def sensor_ready(self,now):
         return (not self.failed and self.align.a is not None and
-                all(g.ready(now) for g in self.guards.values()) and
+                all(g.ready(now) for g in self.stream_guards.values()) and
                 self.frames_ok and self.vision_owner_ok and self.vision_subscriber_ok and now-self.sync_stamp < 1.5 and self.rtt < 10 and not self.clock.failed)
 
     def report(self):
@@ -189,7 +189,7 @@ class VioBridge(Node):
         reasons=[self.failed] if self.failed else []
         if self.align.a is None:
             reasons.append("waiting for disarmed, fresh valid FC pose to latch alignment")
-        reasons += [name+": "+(g.error or "rate/window/staleness") for name,g in self.guards.items() if not g.ready(now)]
+        reasons += [name+": "+(g.error or "rate/window/staleness") for name,g in self.stream_guards.items() if not g.ready(now)]
         if now-self.sync_stamp >= 1.5 or self.rtt >= 10:
             reasons.append("MAVROS time synchronisation missing/high RTT")
         if not self.frames_ok:
@@ -201,7 +201,7 @@ class VioBridge(Node):
         msg=String()
         msg.data=json.dumps({"stamp":now,"ready":ready,"reason":"; ".join(reasons),
                              "image_stamp":self.image_stamp,"update_stamp":self.update_stamp,
-                             "rates":{k:g.rate() for k,g in self.guards.items()},"rtt_ms":self.rtt,
+                             "rates":{k:g.rate() for k,g in self.stream_guards.items()},"rtt_ms":self.rtt,
                              "aligned":self.align.a is not None,"dry_run":self.dry})
         self.status.publish(msg)
 
