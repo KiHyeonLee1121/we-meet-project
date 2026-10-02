@@ -1,0 +1,185 @@
+# Day/night profiles for the Pi panel-localization vision chain.
+#
+# Switch with:  ~/Desktop/camera_profiles.sh <profile>   (from the laptop)
+# or directly:  tools/pi_panel_cpu_runtime.py --profile <profile>
+#
+# 'active' is what the worker uses when --profile is not given.
+active: day
+
+# ---------------------------------------------------------------------------
+# FOUR PROFILES: an as-found baseline and a tuned profile, for each of night
+# and day. The *_asfound pair is the exact configuration that was running
+# before 2026-08-24, kept so any change here can be reverted in one command
+# rather than reconstructed from memory.
+#
+# Before this file existed there was only ONE configuration, hardcoded in
+# tools/pi_panel_cpu_runtime.py, and it ran regardless of the time of day.
+# That is why night_asfound and day_asfound are identical: a daytime flight
+# would have used the night exposure. That was the bug, not a setting.
+#
+# Three groups per profile, because they reach the code by three different
+# paths. Putting a key in the wrong group makes it silently do nothing.
+#
+#   camera:   -> rpicam-vid flags, applied when the worker starts the camera.
+#                Takes effect on worker restart. A null value means the flag
+#                is omitted, which is not the same as passing 0.
+#   detector: -> laptop_ai.yaml panel_detector, overlaid in memory by the
+#                worker at load time. Takes effect on worker restart. The file
+#                on disk is never rewritten, so laptop_ai.yaml stays the
+#                documented baseline and these are the deltas from it.
+#   survey:   -> panel_survey ROS parameters, which live in the container. The
+#                switch script rewrites those lines in
+#                ros2_ws/src/da_daka_control/config/panel_survey.yaml and
+#                restarts the container. Takes effect on container restart.
+# ---------------------------------------------------------------------------
+
+# Shared by every profile. The 180-degree rotation is not cosmetic: the
+# measured camera/body calibration assumes perception receives the physically
+# inverted image, so changing it invalidates the mount offsets.
+common:
+  rotation: 180
+  width: 640
+  height: 480
+  framerate: 15
+  bitrate: 2000000
+
+profiles:
+
+  # === BEFORE ==============================================================
+
+  night_asfound:
+    # Verbatim reconstruction of the hardcoded camera_command() as it stood
+    # through the 2026-08-24 night flights. Only --shutter and --gain were
+    # ever passed; every other control was left at the rpicam-vid default,
+    # which is what the nulls below record. This is the known-good night
+    # configuration - revert here if a change makes night detection worse.
+    camera:
+      shutter_us: 50000
+      gain: 32.0
+      # Never passed. Defaults: awb auto, ev 0, exposure normal,
+      # metering centre, denoise auto.
+      awb: null
+      ev: null
+      exposure: null
+      metering: null
+      denoise: null
+    detector: {}          # laptop_ai.yaml as committed, no overlay
+    survey:
+      minimum_panel_confidence: 0.65
+      minimum_observations: 8
+
+  day_asfound:
+    # Identical to night_asfound on purpose - see the header. This is what a
+    # daytime flight would have used before this file existed: a 50 ms shutter
+    # at gain 32 in full sun, which clips the frame to white and erases the
+    # panel edges the detector keys on. Kept only as the 'before' reference.
+    camera:
+      shutter_us: 50000
+      gain: 32.0
+      awb: null
+      ev: null
+      exposure: null
+      metering: null
+      denoise: null
+    detector: {}
+    survey:
+      minimum_panel_confidence: 0.65
+      minimum_observations: 8
+
+  # === AFTER ===============================================================
+
+  night:
+    # night_asfound plus explicit denoise. Everything else is spelled out at
+    # its former default value, so the controls are visible rather than
+    # implicit - those five are no-ops against night_asfound.
+    camera:
+      # Debug frames landed at mean brightness 36-42, max 170-244. Exposure is
+      # pinned because AEC/AGC hunts badly with this little light.
+      shutter_us: 50000
+      gain: 32.0
+      awb: auto             # was default auto
+      ev: 0.0               # was default 0
+      exposure: normal      # was default normal
+      metering: centre      # was default centre
+      # THE ONLY REAL CHANGE from night_asfound. High gain at 50 ms is noisy
+      # and the default 'auto' denoise is conservative. UNVERIFIED against a
+      # night flight - if night detection regresses, this is the first thing
+      # to revert, by switching to night_asfound.
+      denoise: cdn_fast
+    detector:
+      # All measured, 2026-08-22 to 08-24 night sessions. These match
+      # laptop_ai.yaml as committed, restated here so the night and day
+      # detector settings sit side by side.
+      #
+      # 0.030 left the panel grid as a concave six-vertex contour; 0.035
+      # recovers its convex four-corner outline (2026-08-22 hover image).
+      polygon_epsilon_ratio: 0.035
+      minimum_area_ratio: 0.01
+      # Relative blue chroma, not absolute HSV, so this survives exposure
+      # changes by design.
+      blue_fallback_enabled: true
+      blue_minimum_b_minus_r: 12
+      blue_minimum_b_minus_g: 0
+      blue_minimum_brightness: 20
+      blue_minimum_rectangularity: 0.50
+      blue_minimum_landscape_ratio: 1.20
+      # 2026-08-24 ablation over 424 saved frames: grid validation plus a 2 px
+      # border margin cut gated detections from 49 to 13. Ghost rejection
+      # moved to minimum_panel_confidence instead. Re-enable this first if
+      # ghost clusters come back.
+      blue_grid_validation_enabled: false
+      # Was 2. A nadir camera at 3 m has only a ~2.2 m vertical footprint, so
+      # real panels clip the frame edge on most passes. Single dominant lever:
+      # 13 -> 32 gated detections on its own.
+      border_margin_px: 0
+    survey:
+      # Road and lane-marking ghosts measured 0.55; real panels 0.74-0.92.
+      minimum_panel_confidence: 0.65
+      # 2026-08-23 flight: two real panels reached 24 and 23 observations
+      # while the single ghost stopped at 3.
+      minimum_observations: 8
+
+  day:
+    camera:
+      # Auto exposure: outdoor brightness swings with cloud, shadow and panel
+      # glare across a single survey leg, so let AEC/AGC track it rather than
+      # pin one value that is wrong for half the route. Null shutter_us/gain
+      # mean the flag is omitted entirely, which is what enables AEC/AGC.
+      shutter_us: null
+      gain: null
+      awb: daylight
+      # Panels are specular. A downward bias keeps glare highlights from
+      # clipping to white, which is what erases the panel edge the detector
+      # keys on.
+      ev: -0.3
+      # Shorter exposures than 'normal' at the same brightness - less motion
+      # blur while the aircraft translates along the survey legs.
+      exposure: sport
+      metering: average
+      denoise: cdn_fast
+
+    # UNMEASURED. Copied from the night profile, not derived from daylight.
+    # Nothing below has been checked against a daytime frame.
+    #
+    # The one that most likely has to move is minimum_panel_confidence. 0.65
+    # is the line that separated real panels from ghosts in NIGHT frames.
+    # Daylight raises contrast for ghosts too, so the gap may sit elsewhere.
+    #
+    # To measure it: fly one survey on this profile, then read the per-cluster
+    # confidences out of captures/panel_cpu_survey/ and move the threshold to
+    # the gap actually observed - the same method that set the night value on
+    # 2026-08-24. Until then these are placeholders.
+    detector:
+      polygon_epsilon_ratio: 0.035
+      minimum_area_ratio: 0.01
+      blue_fallback_enabled: true
+      blue_minimum_b_minus_r: 12
+      blue_minimum_b_minus_g: 0
+      blue_minimum_brightness: 20
+      blue_minimum_rectangularity: 0.50
+      blue_minimum_landscape_ratio: 1.20
+      blue_grid_validation_enabled: false
+      border_margin_px: 0
+    survey:
+      minimum_panel_confidence: 0.65
+      minimum_observations: 8

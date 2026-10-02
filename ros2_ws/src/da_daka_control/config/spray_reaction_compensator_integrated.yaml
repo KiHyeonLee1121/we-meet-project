@@ -1,0 +1,29 @@
+spray_reaction_compensator:
+  ros__parameters:
+    # Real-mission profile. The launch file overrides output_enabled only when
+    # spray_reaction_enabled:=true is explicitly supplied after calibration.
+    output_enabled: false
+    enabled_on_startup: false
+    follow_distance_control: true
+
+    spray_active_topic: /spray/active
+    vertical_ff_topic: /spray_reaction/vertical_velocity_ff
+    force_estimate_topic: /spray_reaction/force_estimate_n
+    enable_service: /spray_reaction/enable
+    enabled_state_topic: /spray_reaction/enabled
+    distance_control_enabled_topic: /distance_control/enabled
+    control_rate_hz: 20.0
+
+    # PLACEHOLDERS from the supplied feedforward package. Replace all values
+    # below with measurements from the final installed spray system.
+    nozzle_diameter_m: 0.006
+    pump_open_flow_lpm: 5.6
+    pump_shutoff_bar: 2.8
+    discharge_coefficient: 0.7
+    water_density_kgm3: 1000.0
+    drone_mass_kg: 2.8
+    ff_gain_s: 1.0
+    ramp_time_s: 0.3
+
+    max_ff_speed_mps: 0.3
+    spray_state_timeout_s: 0.5

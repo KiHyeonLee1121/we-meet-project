@@ -1,0 +1,53 @@
+mission_manager:
+  ros__parameters:
+    # A human-reviewed deployment must opt in before this real-aircraft test
+    # can arm. The operator application cannot change this parameter.
+    validation_approved: false
+    # Distance-control test profile. The launch selects LiDAR takeoff; target,
+    # tolerance and speed limits live in distance_controller.yaml.
+    hover_hold_duration: 2.0
+    prestream_duration: 2.0
+    target_hold_confirm_duration: 0.2
+
+    # Health and total distance-control limits
+    sensor_timeout: 0.3
+    telemetry_timeout: 0.5
+    status_timeout: 3.0
+    distance_control_timeout: 20.0
+    minimum_battery_remaining: 0.30
+    battery_id: 1  # PWR2 / PX4 BAT2
+    require_on_ground_at_start: true
+    require_enabled_sensors_healthy: true
+    # Explicit field-test approval: ignore only 0x14000
+    # (XY position control + unused radio input); all other health bits remain blocking.
+    ignored_unhealthy_sensor_mask: 81920
+
+    # Non-blocking FSM and retry policy
+    fsm_rate_hz: 20.0
+    service_retry_interval: 1.0
+    max_retries: 3
+    loiter_mode: AUTO.LOITER
+    land_mode: AUTO.LAND
+    # QGC and PX4 failsafe modes always win; radio control is not used.
+
+    # Per-state timeouts
+    precheck_timeout: 5.0
+    arming_timeout: 5.0
+    takeoff_timeout: 5.0
+    wait_hover_timeout: 15.0
+    check_sensor_timeout: 3.0
+    prestream_timeout: 6.0
+    enable_timeout: 3.0
+    offboard_timeout: 5.0
+    target_hold_timeout: 3.0
+    loiter_timeout: 5.0
+    land_timeout: 5.0
+    wait_disarm_timeout: 30.0
+    abort_timeout: 30.0
+
+    # One CSV per mission, including FSM events and 10 Hz telemetry.
+    enable_csv_logging: true
+    # /workspace is bind-mounted to the host ROS workspace, so flight logs
+    # survive container recreation.
+    log_directory: /workspace/logs/distance_mission
+    telemetry_log_rate_hz: 10.0

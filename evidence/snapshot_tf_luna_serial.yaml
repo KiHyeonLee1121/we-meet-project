@@ -1,0 +1,13 @@
+tf_luna_serial:
+  ros__parameters:
+    port: /dev/serial/by-id/usb-Prolific_Technology_Inc._USB-Serial_Controller-if00-port0
+    baudrate: 115200
+    topic: /distance/raw
+    frame_id: tf_luna_link
+    min_range_m: 0.2
+    max_range_m: 8.0
+    field_of_view_rad: 0.035
+    minimum_strength: 100
+    poll_rate_hz: 200.0
+    read_chunk_size: 512
+    reconnect_interval_s: 2.0

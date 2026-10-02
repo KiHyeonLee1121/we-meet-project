@@ -1,0 +1,81 @@
+distance_controller:
+  ros__parameters:
+    input_topic: /distance/filtered
+    command_topic: /mavros/setpoint_velocity/cmd_vel
+    enable_service: /distance_control/enable
+    enabled_state_topic: /distance_control/enabled
+    target_reached_topic: /distance_control/target_reached
+    frame_id: map
+    control_rate_hz: 20.0
+    enabled_on_startup: false
+    require_mavros_connected: true
+    sensor_timeout_s: 0.3
+
+    # Live distance-test containers load this file directly. Panel launch
+    # files explicitly override this default back to local_z.
+    local_position_topic: /mavros/local_position/pose
+    local_velocity_topic: /mavros/local_position/velocity_local
+    local_position_timeout_s: 0.3
+    local_velocity_timeout_s: 0.3
+    local_takeoff_enable_service: /local_takeoff/enable
+    local_takeoff_enabled_state_topic: /local_takeoff/enabled
+    local_takeoff_target_reached_topic: /local_takeoff/target_reached
+    control_mode_topic: /vertical_control/mode
+    local_takeoff_climb_height_m: 1.1
+    local_takeoff_tolerance_m: 0.08
+    local_takeoff_kp: 0.8
+    local_takeoff_max_speed_mps: 0.4
+    local_takeoff_slow_zone_m: 0.4
+    local_takeoff_max_accel_mps2: 0.5
+    local_takeoff_stable_duration_s: 2.0
+    local_takeoff_stable_max_speed_mps: 0.08
+    takeoff_reference: lidar
+    lidar_takeoff_target_distance_m: 1.1
+    # Zero disables the optional near-ground LiDAR takeoff cap.
+    lidar_soft_launch_max_speed_mps: 0.0
+    lidar_soft_launch_until_distance_m: 0.0
+    lidar_rate_window_s: 0.5
+
+    target_distance_m: 1.0
+    deadband_m: 0.05
+
+    # 2026-08-07 flight logs (log_74) showed target-hold hunting: vz sign
+    # flipped 8-12 times over 20s (~0.4-0.6Hz) with no D term to damp approach
+    # velocity. kd added per log analysis; ki still unused pending further data.
+    kp: 0.6
+    ki: 0.0
+    kd: 0.15
+    integral_limit: 0.3
+
+    max_vertical_speed_mps: 0.25
+    slow_zone_m: 0.30
+    max_vertical_accel_mps2: 0.5
+
+    # Declare success only after a continuous, settled hold near 1 m.
+    # Allow the observed VM/SITL estimator jitter while still holding near 1 m.
+    target_stable_tolerance_m: 0.10
+    target_stable_duration_s: 5.0
+    target_stable_max_speed_mps: 0.05
+    # 1.0 preserves the original continuous-stability requirement. The panel
+    # distance launch overrides this profile without changing this standalone
+    # distance mission.
+    target_stable_required_ratio: 1.0
+    target_stable_require_local_velocity: false
+    target_stable_max_vehicle_speed_mps: 0.05
+
+    # Absolute yaw hold is opt-in. panel_distance_mission.launch enables it
+    # and continuously supplies the pre-arm launch yaw; other missions keep
+    # the existing vertical-only behavior.
+    hold_yaw_enabled: false
+    yaw_target_topic: /vertical_control/yaw_target
+    yaw_target_timeout_s: 0.3
+    yaw_hold_kp: 1.0
+    yaw_hold_max_rate_rad_s: 0.35
+
+    # Spray-reaction feedforward remains inert until explicitly approved.
+    spray_ff_enabled: false
+    spray_ff_topic: /spray_reaction/vertical_velocity_ff
+    spray_ff_timeout_s: 0.3
+    maximum_spray_ff_mps: 0.3
+    # Preserve the current distance-control speed envelope by default.
+    max_total_vertical_speed_mps: 0.25

@@ -1,0 +1,97 @@
+camera:
+  source: 0
+  width: 640
+  height: 480
+  fps: 30
+
+surface:
+  type: "acrylic_panel_mock"
+  description: "Acrylic test plate visually arranged to mimic a solar panel"
+  reject_specular_highlights: true
+
+flight:
+  low_altitude_mode: true
+  expected_height_min_m: 1.5
+  expected_height_max_m: 2.0
+  note: "LiDAR target distance is tuned for near-ground acrylic mock-panel tests"
+
+safety:
+  require_lidar_valid_for_spray: true
+  max_mission_time_s: 120.0
+  max_target_jump_px: 180
+  notes:
+    - "Low altitude flight leaves little recovery margin; keep velocity caps conservative"
+    - "Acrylic glare, hose drag, prop wash, and LiDAR dropouts are expected feasibility variables"
+
+roi:
+  use_manual_roi: false
+  x: 0
+  y: 0
+  w: 640
+  h: 480
+
+detector:
+  backend: "opencv"
+  min_area: 80
+  max_area: 50000
+  threshold_mode: "adaptive"
+  confidence_threshold: 0.3
+  reject_specular_highlights: true
+  specular_v_threshold: 245
+  specular_saturation_max: 45
+  ignore_border_px: 4
+  model_path: null
+
+visual_servo:
+  align_threshold_px: 40
+  max_vx: 0.12
+  max_vy: 0.12
+  max_vz: 0.12
+  invert_x: false
+  invert_y: false
+  invert_z: false
+  axis_map:
+    horizontal: "vy"
+    vertical: "vx"
+    distance: "vz"
+
+lidar:
+  backend: "mock"
+  port: "/dev/ttyUSB0"
+  baudrate: 115200
+  target_distance_m: 1.6
+  tolerance_m: 0.25
+  min_valid_distance_m: 0.5
+  max_valid_distance_m: 2.5
+  smoothing_window: 5
+  max_jump_m: 0.45
+  mock_distance_m: 1.6
+  mock_noise_std: 0.02
+
+mavlink:
+  dry_run: true
+  connection_string: "udp:127.0.0.1:14550"
+  baudrate: 57600
+
+spray:
+  backend: "mock"
+  dry_run: true
+  pulse_duration_s: 0.3
+  min_duration_s: 0.1
+  max_duration_s: 1.0
+  stabilize_wait_s: 1.5
+
+mission:
+  max_retries: 3
+  stable_hold_time_s: 1.0
+  search_timeout_s: 10.0
+  verify_area_reduction_ratio: 0.5
+  required_detection_frames: 2
+  target_stability_max_jump_px: 180
+  min_spray_interval_s: 2.0
+  max_spray_events: 3
+
+debug:
+  show_window: true
+  save_video: false
+  save_logs: true

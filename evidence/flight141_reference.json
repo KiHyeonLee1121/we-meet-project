@@ -1,0 +1,160 @@
+{
+  "flight_id": 141,
+  "source_sha256": "56c3f79d9d2bade5ad945e62bbdf3fa035fb3fc798b0d7d4455e1ee97e948ad7",
+  "firmware": "d6f12ad1c4f70ad3230afd7d86e971421e02fef4",
+  "source_snapshot_exact_as_flown_verified": false,
+  "request_reference_from_field_document": {
+    "enu_xy": [
+      3.073,
+      1.037
+    ],
+    "home_enu_xy": [
+      3.284,
+      0.921
+    ],
+    "rounding_m": 0.001
+  },
+  "scan": {
+    "launch_enu_xy": [
+      2.7649991512298584,
+      1.0895180702209473
+    ],
+    "yaw_enu_deg": -120.8676528930664,
+    "width_m": 3.0,
+    "depth_m": 2.0,
+    "forward_offset_m": 0.0,
+    "lateral_offset_m": 0.0,
+    "waypoints_enu_xy": [
+      [
+        1.9905238151550293,
+        2.7174580097198486
+      ],
+      [
+        4.565587997436523,
+        1.1782877445220947
+      ],
+      [
+        3.5394744873046875,
+        -0.5384216904640198
+      ],
+      [
+        0.9644103646278381,
+        1.0007485151290894
+      ],
+      [
+        2.7649991512298584,
+        1.0895180702209473
+      ]
+    ]
+  },
+  "home_xy_events": [
+    {
+      "after_arm_s": -1e-05,
+      "enu_xy": [
+        3.0436172485351562,
+        1.0082709789276123
+      ]
+    },
+    {
+      "after_arm_s": 4.570353,
+      "enu_xy": [
+        2.975919246673584,
+        0.9730047583580017
+      ]
+    }
+  ],
+  "mode_events": [
+    {
+      "after_arm_s": 7e-06,
+      "nav_state": 4,
+      "arming_state": 2
+    },
+    {
+      "after_arm_s": 2.871585,
+      "nav_state": 14,
+      "arming_state": 2
+    },
+    {
+      "after_arm_s": 14.415555,
+      "nav_state": 4,
+      "arming_state": 2
+    },
+    {
+      "after_arm_s": 16.765861,
+      "nav_state": 14,
+      "arming_state": 2
+    },
+    {
+      "after_arm_s": 72.125015,
+      "nav_state": 4,
+      "arming_state": 2
+    },
+    {
+      "after_arm_s": 74.817196,
+      "nav_state": 14,
+      "arming_state": 2
+    },
+    {
+      "after_arm_s": 86.721055,
+      "nav_state": 4,
+      "arming_state": 2
+    },
+    {
+      "after_arm_s": 89.813263,
+      "nav_state": 14,
+      "arming_state": 2
+    },
+    {
+      "after_arm_s": 117.980293,
+      "nav_state": 18,
+      "arming_state": 2
+    },
+    {
+      "after_arm_s": 123.758124,
+      "nav_state": 14,
+      "arming_state": 1
+    }
+  ],
+  "heading_reset": {
+    "after_arm_s": 8.290696,
+    "delta_ned_deg": -3.1848758019551027
+  },
+  "panels_from_field_document": [
+    {
+      "panel_id": 1,
+      "east_m": 1.772382,
+      "north_m": 0.849756,
+      "width_m": 0.4653,
+      "height_m": 0.2706,
+      "confidence": 0.8451,
+      "observation_count": 32
+    },
+    {
+      "panel_id": 2,
+      "east_m": 2.870569,
+      "north_m": 0.42407,
+      "width_m": 0.4358,
+      "height_m": 0.2012,
+      "confidence": 0.9121,
+      "observation_count": 33
+    },
+    {
+      "panel_id": 3,
+      "east_m": 1.675512,
+      "north_m": 1.296333,
+      "width_m": 0.4952,
+      "height_m": 0.1629,
+      "confidence": 0.7833,
+      "observation_count": 10
+    },
+    {
+      "panel_id": 6,
+      "east_m": 3.087753,
+      "north_m": 0.852685,
+      "width_m": 0.479,
+      "height_m": 0.2831,
+      "confidence": 0.8591,
+      "observation_count": 24
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+# Example only. Confirm device, baud and QGC IP on Raspberry Pi before use.
+#
+# Only mavlink-router may open the Pixhawk serial device. MAVROS connects to
+# the local UDP endpoint and QGC receives a separate UDP stream over Wi-Fi.
+
+[General]
+TcpServerPort = 0
+ReportStats = true
+
+[UartEndpoint pixhawk]
+Device = /dev/serial/by-id/<CONFIRM_PIXHAWK_DEVICE>
+Baud = <CONFIRM_PIXHAWK_BAUD>
+
+[UdpEndpoint local_mavros]
+Mode = Normal
+Address = 127.0.0.1
+Port = 14540
+
+[UdpEndpoint qgc]
+Mode = Normal
+Address = <CONFIRM_QGC_PC_IP>
+Port = 14550

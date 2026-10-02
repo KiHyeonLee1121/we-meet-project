@@ -1,0 +1,63 @@
+panel_survey:
+  ros__parameters:
+    perception_topic: "/ai/perception"
+    pose_topic: "/mavros/local_position/pose"
+    range_topic: "/distance/filtered"
+    active_topic: "/panel_survey/active"
+    map_topic: "/panel_survey/map"
+    state_topic: "/panel_survey/state"
+    reset_service: "/panel_survey/reset"
+    finalize_service: "/panel_survey/finalize"
+
+    # Measured 2026-08-24 from flight 2's own detections, not a placeholder.
+    # The previous 1.30/0.73 were never measured and were ~2.4x too large,
+    # which is the single root cause of three separate symptoms:
+    #   - one 297x420 mm panel mapped at 0.87-0.92 x 0.42-0.49 m
+    #   - each physical panel split into TWO clusters 0.82 m apart, because
+    #     projection error scales with distance from image centre and flips
+    #     sign between scan legs that frame the panel on opposite sides
+    #   - blue floor paint inflated to 1.63 m and 2.27 m clusters that then
+    #     cleared every size check
+    # Solved from 24 unclipped detection boxes: for a rectangle at unknown
+    # rotation, eliminating theta leaves
+    #   (W^2+H^2)(u^2+v^2) - 4WH*uv = (W^2-H^2)^2,  u=bw*sx, v=bh*sy
+    # one equation per box in two unknowns. The panels are A3 (297x420 mm)
+    # tilted 30 degrees, so the nadir-projected rectangle is 0.420 x 0.257 m.
+    # Both axes came out off by nearly the same factor (2.51 and 2.34) and the
+    # aspect ratio is preserved, which is what a uniform field-of-view error
+    # looks like. Re-measure if the lens, the 640x480 crop, or the mount
+    # changes - all three set this number.
+    footprint_width_at_1m_m: 0.52
+    footprint_height_at_1m_m: 0.31
+    image_x_positive_is_left: false
+    image_y_positive_is_forward: false
+    # Residual camera-to-body mounting calibration. Vehicle roll/pitch/yaw is
+    # read live from MAVROS and applied on top of these fixed offsets.
+    camera_mount_roll_deg: 0.0
+    camera_mount_pitch_deg: 0.0
+    camera_mount_yaw_deg: 0.0
+    # 2026-08-17 measurement in body FLU, using the nozzle/range assembly as
+    # the vehicle reference: camera is forward 0.07 m, left 0.05 m and down
+    # 0.16 m. The range correction keeps image footprint scale consistent.
+    camera_offset_forward_m: 0.07
+    camera_offset_left_m: 0.05
+    camera_offset_up_m: -0.16
+    camera_height_above_range_sensor_m: -0.16
+
+    merge_radius_m: 0.45
+    # 2026-08-23 flight: the two real panels reached 24 and 23
+    # observations while the single ghost stopped at 3.
+    minimum_observations: 8
+    # Raised from 0.55 on 2026-08-24. This now carries the anti-ghost job that
+    # the detector geometry filters used to do: road and lane-marking ghosts
+    # measured 0.55 while real panels measured 0.74-0.92.
+    minimum_panel_confidence: 0.65
+    # Reject mapping frames outside the stable-hover envelope.
+    maximum_survey_tilt_deg: 7.0
+    input_timeout_s: 0.5
+    # Match every panel rectangle to the vehicle pose/range at camera capture,
+    # not at UDP/ROS arrival. At survey speed, arrival-time projection can
+    # split one physical panel into multiple map clusters.
+    capture_sync_tolerance_s: 0.15
+    input_history_s: 2.0
+    publish_rate_hz: 5.0

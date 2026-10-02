@@ -1,0 +1,12 @@
+spray_controller:
+  ros__parameters:
+    # Keep both gates closed until Pixhawk AUX5 and the driver circuit have
+    # passed a propellers-off bench test.
+    backend: "mock"
+    output_enabled: false
+    mavros_command_service: "/mavros/cmd/command"
+    pulse_duration_s: 3.0
+    minimum_pulse_s: 0.05
+    maximum_pulse_s: 3.0
+    cooldown_s: 2.0
+    status_rate_hz: 10.0

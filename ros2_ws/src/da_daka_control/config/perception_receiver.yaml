@@ -1,0 +1,15 @@
+perception_receiver:
+  ros__parameters:
+    bind_address: "0.0.0.0"
+    port: 5005
+    allowed_source_id: "laptop-ai-01"
+    # The mission launch overrides this with its laptop_ip argument.
+    allowed_remote_ip: ""
+    result_topic: "/ai/perception"
+    health_topic: "/ai/health"
+    state_topic: "/ai/receiver_state"
+    heartbeat_timeout_s: 1.0
+    poll_rate_hz: 100.0
+    maximum_packet_bytes: 65507
+    maximum_panels: 32
+    maximum_inference_time_ms: 1000.0

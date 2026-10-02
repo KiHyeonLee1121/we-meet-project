@@ -1,0 +1,29 @@
+{
+  "archive_sources_unchanged": 138,
+  "fixture": {
+    "waypoint_max_error_m": 1.4014508316333884e-07,
+    "rounded_home_error_m": 0.0005194937985714053,
+    "recorded_route": [
+      3,
+      1,
+      2,
+      6
+    ]
+  },
+  "original_ulog": {
+    "source_sha256_verified": true,
+    "raw_waypoint_max_error_m": 0.0,
+    "raw_yaw_max_error_rad": 1.7484555314695172e-07,
+    "first_panel_error_m": 6.77843702866966e-07,
+    "reacquire_radius_max_error_m": 7.162732681975648e-07,
+    "reacquire_period_s": 5.000199299463787,
+    "px4_parameter_count": 1146
+  },
+  "scope": "offline archive/command verification; no ROS integration or real flight validation",
+  "unit_tests": {
+    "passed": 14,
+    "runner": "python -m unittest discover -s tests -v",
+    "ROS_and_FC": "isolated test doubles; real ROS integration not executed"
+  },
+  "python_compileall_passed": true
+}

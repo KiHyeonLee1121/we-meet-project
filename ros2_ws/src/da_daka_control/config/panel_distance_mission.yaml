@@ -1,0 +1,86 @@
+panel_distance_mission:
+  ros__parameters:
+    # This must remain false until the operator has confirmed orientation,
+    # clearance, and waypoint order for this route (same hard-lock as
+    # panel_mission.yaml). The start service rejects false.
+    configuration_approved: false
+
+    # Assumed-panel route in the launch-body FLU frame. The launch point is
+    # (0, 0), +forward is the pre-arm nose direction, and +left is the
+    # aircraft's left. The node latches launch ENU XY/yaw once before arming
+    # and rotates these fixed offsets into ENU; no heading-specific YAML edit
+    # is needed. Panels are assumed at the four corners--this mission does not
+    # detect or estimate their real positions.
+    # (0,0) -> forward -> forward/left -> left -> (0,0)
+    waypoint_forward_m: [3.0, 3.0, 0.0, 0.0]
+    waypoint_left_m: [0.0, 3.0, 3.0, 0.0]
+
+    # Two-pass sequence: climb to 3 m using LiDAR, patrol forward while Local
+    # X/Y handles the route and LiDAR holds 3 m. On the reverse pass, hold
+    # target_distance_m (1.0 m) at each waypoint, then move to the next
+    # waypoint AT that same 1.0 m distance-hold altitude instead of
+    # climbing back to 3 m (changed 2026-08-12 per operator request --
+    # reduces vertical clearance margin during reverse-pass transit
+    # compared to the 3 m forward-patrol height).
+    # After the backward pass ends at the forward corner, return to launch
+    # origin (0, 0) at the 1 m reverse-transit height and land there.
+    takeoff_height_m: 3.0
+    target_distance_m: 1.0
+    arrival_tolerance_m: 0.25
+    arrival_max_speed_mps: 0.10
+    arrival_stable_s: 2.0
+    # Panel-only horizontal profile. Cruise at 0.8 m/s, ramp command speed at
+    # 0.6 m/s^2, and slow linearly over the final 1.2 m. The moving setpoint
+    # snaps to the exact corner inside 10 cm; PX4 XY PID remains unchanged.
+    maximum_horizontal_setpoint_speed_mps: 0.80
+    horizontal_setpoint_max_accel_mps2: 0.60
+    horizontal_slow_zone_m: 1.20
+    horizontal_min_approach_speed_mps: 0.12
+    horizontal_target_snap_distance_m: 0.10
+    maximum_vertical_setpoint_speed_mps: 0.20
+    cruise_lidar_tolerance_m: 0.10
+    cruise_lidar_control_deadband_m: 0.03
+    cruise_lidar_gain: 1.0
+    cruise_lidar_max_local_z_offset_m: 0.40
+    patrol_pause_s: 1.0
+    distance_pause_s: 3.0
+    prestream_s: 2.0
+    # Before horizontal motion, hold the launch position and require the
+    # pre-arm yaw to remain recovered inside this window. On the reverse
+    # pass this check happens after the current corner's 1 m distance hold,
+    # immediately before moving to the next corner.
+    yaw_alignment_tolerance_deg: 5.0
+    yaw_alignment_stable_s: 0.5
+    # Latch a circular-mean launch yaw only after the estimate remains tight
+    # before ARM; an unstable heading keeps PRECHECK waiting.
+    launch_yaw_stable_duration_s: 1.0
+    launch_yaw_max_deviation_deg: 2.0
+    # The launch profile uses the measured PX4/QGC takeoff values (1.5 m/s,
+    # 4.0 m/s^2 and vertical position P=1.0) and then settles inside +/-0.30 m.
+    takeoff_timeout_s: 40.0
+
+    # The panel launch applies kp=0.70, ki=0.0, kd=0.15 and a 2.9 s / 90 percent
+    # stability window while retaining +/-0.10 m and <=0.05 m/s limits.
+    # Replaying both 2026-08-12 approaches at the actual 20 Hz decision rate
+    # met that profile in 9.959 s and 9.493 s before the modest P increase;
+    # 15 s leaves execution margin but
+    # avoids waiting 30 s on a genuinely unstable approach.
+    distance_control_timeout_s: 15.0
+    target_hold_confirm_duration_s: 0.2
+    sensor_timeout_s: 0.3
+
+    telemetry_timeout_s: 0.5
+    status_timeout_s: 3.0
+
+    minimum_battery_remaining: 0.15
+    battery_id: 1  # PWR2 / PX4 BAT2
+    require_enabled_sensors_healthy: true
+    # Explicit operator approval: ignore only 0x14000
+    # (XY position control + unused radio input); all other health bits remain blocking.
+    ignored_unhealthy_sensor_mask: 81920
+
+    loiter_mode: AUTO.LOITER
+    land_mode: AUTO.LAND
+    tick_rate_hz: 20.0
+    action_retry_s: 1.0
+    state_timeout_s: 30.0

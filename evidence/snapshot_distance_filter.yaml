@@ -1,0 +1,6 @@
+distance_filter:
+  ros__parameters:
+    input_topic: /distance/raw
+    output_topic: /distance/filtered
+    median_window_size: 5
+    average_window_size: 5

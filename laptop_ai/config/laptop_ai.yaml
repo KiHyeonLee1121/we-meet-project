@@ -1,0 +1,95 @@
+network:
+  source_id: "laptop-ai-01"
+  pi_source_id: "pi5-01"
+  pi_ip: "192.168.1.20"
+  result_port: 5005
+  control_bind: "0.0.0.0"
+  control_port: 5006
+  control_timeout_s: 1.0
+
+video:
+  port: 5600
+
+panel_detector:
+  minimum_area_ratio: 0.01
+  maximum_area_ratio: 0.90
+  minimum_aspect_ratio: 1.0
+  maximum_aspect_ratio: 4.0
+  maximum_panels: 32
+  # 2026-08-22 night hover image: 0.030 left the panel grid as a concave
+  # six-vertex contour; 0.035 recovers its convex four-corner outline.
+  polygon_epsilon_ratio: 0.035
+  # Night fallback measured against the 2026-08-22 survey captures. This uses
+  # relative blue chroma so exposure changes do not require a fixed HSV value.
+  blue_fallback_enabled: true
+  blue_minimum_b_minus_r: 12
+  blue_minimum_b_minus_g: 0
+  blue_minimum_brightness: 20
+  blue_minimum_rectangularity: 0.50
+  # The installed panels stay landscape after the fixed 180-degree camera
+  # rotation. Require repeated solar-cell boundaries so blue road regions and
+  # crossing lane markings cannot become stable panels at night.
+  blue_minimum_landscape_ratio: 1.20
+  # 2026-08-24 offline ablation over 424 saved survey frames: grid validation
+  # and the 2 px border margin together cut confidence-gated detections from
+  # 49 to 13. Real panels score 0.74-0.92 while road/lane ghosts sit at 0.55,
+  # so ghosts are now rejected by minimum_panel_confidence (raised to 0.65 in
+  # panel_survey.yaml) instead of by geometry. Re-enable this first if ghost
+  # clusters come back.
+  blue_grid_validation_enabled: false
+  blue_grid_minimum_vertical_lines: 3
+  blue_grid_minimum_horizontal_lines: 1
+  blue_grid_minimum_edge_density: 0.008
+  # Metric mapping requires a complete rectangle. Border-touching candidates
+  # are partial panels, and full-axis blue regions are ground/background.
+  # Was 2. A nadir camera at the 3 m survey altitude has only a ~2.2 m
+  # vertical footprint, so real panels clip the frame edge on most passes and
+  # a 2 px margin discarded them. This is the single dominant lever: 13 -> 32
+  # gated detections on its own.
+  border_margin_px: 0
+  maximum_width_ratio: 0.85
+  maximum_height_ratio: 0.85
+
+target_selection:
+  # The active random-layout panel should be closest to this image point after
+  # metric transit. A distant non-target panel cannot trigger cleaning.
+  target_x_norm: 0.50
+  target_y_norm: 0.50
+  maximum_center_distance_norm: 0.45
+
+dirt_model:
+  # The repository intentionally does not fabricate weights. Put the trained
+  # binary segmentation ONNX file here and validate its output contract.
+  path: "models/dirt_segmentation.onnx"
+  input_width: 512
+  input_height: 512
+  output_channel: 0
+  threshold: 0.50
+  minimum_area_ratio: 0.001
+
+performance:
+  opencv_num_threads: 2
+  opencv_use_opencl: false
+  opencv_use_optimized: true
+  onnx_intra_op_threads: 1
+  onnx_inter_op_threads: 1
+  onnx_graph_optimization: "all"
+  onnx_device_id: 0
+  onnx_warmup_runs: 5
+  onnx_cuda_conv_use_max_workspace: true
+  onnx_cuda_use_tf32: true
+  onnx_cuda_arena_extend_strategy: "kNextPowerOfTwo"
+  onnx_cuda_cudnn_conv_algo_search: "EXHAUSTIVE"
+  cuda_module_loading_lazy: true
+
+runtime:
+  idle_heartbeat_s: 0.25
+  # Observe-only until real bitrate/inference/accuracy profiles are measured.
+  optimizer_config: "laptop_ai/config/pendulum_optimization.yaml"
+
+viewer:
+  # The viewer uses the worker's decoded frame and inference result; it does
+  # not open a second UDP receiver or run a second model.
+  window_title: "DA-DAKA Laptop AI Monitor"
+  screenshot_directory: "logs/laptop_ai_viewer"
+  fullscreen: false

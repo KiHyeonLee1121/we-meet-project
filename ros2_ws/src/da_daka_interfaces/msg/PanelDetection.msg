@@ -1,0 +1,6 @@
+uint32 candidate_id
+float32 center_x_norm
+float32 center_y_norm
+float32 width_norm
+float32 height_norm
+float32 confidence

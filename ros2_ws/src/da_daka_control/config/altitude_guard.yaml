@@ -1,0 +1,12 @@
+altitude_guard:
+  ros__parameters:
+    # Capture local Z while disarmed/on-ground, then land at this climb.
+    maximum_climb_m: 5.0
+    pose_timeout_s: 0.5
+    check_rate_hz: 20.0
+    land_mode: AUTO.LAND
+    request_retry_interval_s: 0.5
+
+    # Missing safety telemetry or launch reference must not permit flight.
+    land_on_pose_timeout: true
+    land_on_missing_launch_reference: true

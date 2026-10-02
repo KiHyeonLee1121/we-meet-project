@@ -1,0 +1,697 @@
+{
+  "archive": "DA_DAKA_flights_141_153_external_review_20261002_v2.zip",
+  "source_snapshot": "33dcf0703de41b7225171e7540c7429e08bc99fb",
+  "exact_as_flown_verified": false,
+  "files": [
+    {
+      "path": "config/camera_profiles.yaml",
+      "source_sha256": "7e6d5744dae8f939365875e19426556bf89e2c177f8ad0f38f8692b1d037720f",
+      "reconstruction_sha256": "7e6d5744dae8f939365875e19426556bf89e2c177f8ad0f38f8692b1d037720f"
+    },
+    {
+      "path": "config/params.yaml",
+      "source_sha256": "4bdfff8c2bd9b588f7119877699a3002fe6b00949654312be6ddc983087d00d9",
+      "reconstruction_sha256": "4bdfff8c2bd9b588f7119877699a3002fe6b00949654312be6ddc983087d00d9"
+    },
+    {
+      "path": "laptop_ai/README.md",
+      "source_sha256": "4e6d41d036f295bce248c5d4490f8a71811ca52888b994f7c281b4ee024137d4",
+      "reconstruction_sha256": "4e6d41d036f295bce248c5d4490f8a71811ca52888b994f7c281b4ee024137d4"
+    },
+    {
+      "path": "laptop_ai/config/laptop_ai.yaml",
+      "source_sha256": "90093efb2c656a8bda83535f0e46a14a4dd28044e24f160f6ae20bb1ecede6a8",
+      "reconstruction_sha256": "90093efb2c656a8bda83535f0e46a14a4dd28044e24f160f6ae20bb1ecede6a8"
+    },
+    {
+      "path": "laptop_ai/config/pendulum_optimization.yaml",
+      "source_sha256": "e435561696b2c5e24aef386f40ac595c99aef2f0d193b2e55b7cac554fe34fb3",
+      "reconstruction_sha256": "e435561696b2c5e24aef386f40ac595c99aef2f0d193b2e55b7cac554fe34fb3"
+    },
+    {
+      "path": "laptop_ai/laptop_ai/__init__.py",
+      "source_sha256": "c33ca0049f86351ebd2b46f1e8d415bb780ab5aba74b6ace9c45edf6b0fbb272",
+      "reconstruction_sha256": "c33ca0049f86351ebd2b46f1e8d415bb780ab5aba74b6ace9c45edf6b0fbb272"
+    },
+    {
+      "path": "laptop_ai/laptop_ai/control_protocol.py",
+      "source_sha256": "6b28819fb5da3e6348641c8db3ae53e1eb5bb7dbea3425dfff81dc8ab263ca7f",
+      "reconstruction_sha256": "6b28819fb5da3e6348641c8db3ae53e1eb5bb7dbea3425dfff81dc8ab263ca7f"
+    },
+    {
+      "path": "laptop_ai/laptop_ai/convert_onnx_fp16.py",
+      "source_sha256": "4882ce5f48ac3979b5dfa123757698ce531ee847c2171ead344c51b20d536e50",
+      "reconstruction_sha256": "4882ce5f48ac3979b5dfa123757698ce531ee847c2171ead344c51b20d536e50"
+    },
+    {
+      "path": "laptop_ai/laptop_ai/joint_optimizer.py",
+      "source_sha256": "fd2be57d1bdf62fa5f82deda05866084e0bebca34d27a2e54604148d52d49dcb",
+      "reconstruction_sha256": "fd2be57d1bdf62fa5f82deda05866084e0bebca34d27a2e54604148d52d49dcb"
+    },
+    {
+      "path": "laptop_ai/laptop_ai/nvidia_check.py",
+      "source_sha256": "27876f52c2ae8dbf26afc2b41c0f1a41bd56ea493c8fd1c2146317f24ce96732",
+      "reconstruction_sha256": "27876f52c2ae8dbf26afc2b41c0f1a41bd56ea493c8fd1c2146317f24ce96732"
+    },
+    {
+      "path": "laptop_ai/laptop_ai/onnx_dirt_detector.py",
+      "source_sha256": "8424424ab6fd4fa6a4e3bb7245d848bb6142da57c1218b2eff095c20ec4eda1d",
+      "reconstruction_sha256": "8424424ab6fd4fa6a4e3bb7245d848bb6142da57c1218b2eff095c20ec4eda1d"
+    },
+    {
+      "path": "laptop_ai/laptop_ai/optimizer_cli.py",
+      "source_sha256": "eb616574941409344cc1d38ae8c4c204e0386e52308da8f2039e9ee259bd1987",
+      "reconstruction_sha256": "eb616574941409344cc1d38ae8c4c204e0386e52308da8f2039e9ee259bd1987"
+    },
+    {
+      "path": "laptop_ai/laptop_ai/optimizer_runtime.py",
+      "source_sha256": "ee99af8cb43d3a256581fbbe40edb25fdf2f245bc82fe49aec251369261836cb",
+      "reconstruction_sha256": "ee99af8cb43d3a256581fbbe40edb25fdf2f245bc82fe49aec251369261836cb"
+    },
+    {
+      "path": "laptop_ai/laptop_ai/panel_detector.py",
+      "source_sha256": "6eff1b7a35a09a96d9d817c7d3011fcc5de4b06dd270826ae73b2f567f4484b5",
+      "reconstruction_sha256": "6eff1b7a35a09a96d9d817c7d3011fcc5de4b06dd270826ae73b2f567f4484b5"
+    },
+    {
+      "path": "laptop_ai/laptop_ai/result_protocol.py",
+      "source_sha256": "12e91b5b3c329229891612cee3469a5feb2c3ef7084c5736e97e6c87762cf7b2",
+      "reconstruction_sha256": "12e91b5b3c329229891612cee3469a5feb2c3ef7084c5736e97e6c87762cf7b2"
+    },
+    {
+      "path": "laptop_ai/laptop_ai/runtime_tuning.py",
+      "source_sha256": "5cfd7560bd78c3af1bf9247e39460c78ab9b4aaa10c05fa2dfc4f7b727fca382",
+      "reconstruction_sha256": "5cfd7560bd78c3af1bf9247e39460c78ab9b4aaa10c05fa2dfc4f7b727fca382"
+    },
+    {
+      "path": "laptop_ai/laptop_ai/scene_change.py",
+      "source_sha256": "8f8fd29083d0a9d90da8bcb7a119273a450d1693c25146a84a7d48e82569969f",
+      "reconstruction_sha256": "8f8fd29083d0a9d90da8bcb7a119273a450d1693c25146a84a7d48e82569969f"
+    },
+    {
+      "path": "laptop_ai/laptop_ai/segmentation_benchmark.py",
+      "source_sha256": "cd63be5857b8854570b8a57aa0c9292a807cd782d0588fc47ce1849c559b4aae",
+      "reconstruction_sha256": "cd63be5857b8854570b8a57aa0c9292a807cd782d0588fc47ce1849c559b4aae"
+    },
+    {
+      "path": "laptop_ai/laptop_ai/viewer_app.py",
+      "source_sha256": "169c75caa190f37486a792bc641e99d61de4f485c71f35ebbd7577df50eedc78",
+      "reconstruction_sha256": "169c75caa190f37486a792bc641e99d61de4f485c71f35ebbd7577df50eedc78"
+    },
+    {
+      "path": "laptop_ai/laptop_ai/visualization.py",
+      "source_sha256": "7c88c1b0d63d4a13c3a990a60a575dcb0b10ec9f13dc55a35505286d8a1b7e40",
+      "reconstruction_sha256": "7c88c1b0d63d4a13c3a990a60a575dcb0b10ec9f13dc55a35505286d8a1b7e40"
+    },
+    {
+      "path": "laptop_ai/laptop_ai/worker.py",
+      "source_sha256": "f6547c24ba72c601bc3b64117dc45488409fb7444a89de6d572ec84d25bfbaa7",
+      "reconstruction_sha256": "f6547c24ba72c601bc3b64117dc45488409fb7444a89de6d572ec84d25bfbaa7"
+    },
+    {
+      "path": "laptop_ai/pyproject.toml",
+      "source_sha256": "b954e54286b15e5bbadcf500e959c5bb682c6d7f89c917616b49f79f12d9605c",
+      "reconstruction_sha256": "b954e54286b15e5bbadcf500e959c5bb682c6d7f89c917616b49f79f12d9605c"
+    },
+    {
+      "path": "laptop_ai/tests/test_control_protocol.py",
+      "source_sha256": "9b4627125edbed08049ab67b0b8bf5836c5c15311c014ed135ec6625571bd3ff",
+      "reconstruction_sha256": "9b4627125edbed08049ab67b0b8bf5836c5c15311c014ed135ec6625571bd3ff"
+    },
+    {
+      "path": "laptop_ai/tests/test_joint_optimizer.py",
+      "source_sha256": "0d78715e51338fee855b6bcd2613ec67e80ff06f45bf69abcd291991366451ea",
+      "reconstruction_sha256": "0d78715e51338fee855b6bcd2613ec67e80ff06f45bf69abcd291991366451ea"
+    },
+    {
+      "path": "laptop_ai/tests/test_panel_detector.py",
+      "source_sha256": "db8e1dbdfe181783a85098e5c4cd1339dc02599614e5e7732ce960aeb7f29efd",
+      "reconstruction_sha256": "db8e1dbdfe181783a85098e5c4cd1339dc02599614e5e7732ce960aeb7f29efd"
+    },
+    {
+      "path": "laptop_ai/tests/test_panel_only_worker.py",
+      "source_sha256": "2ce3fbac63257e1d05409ed2a5a7453cf910a11828947376e6116b505a3c1d82",
+      "reconstruction_sha256": "2ce3fbac63257e1d05409ed2a5a7453cf910a11828947376e6116b505a3c1d82"
+    },
+    {
+      "path": "laptop_ai/tests/test_panel_target_selection.py",
+      "source_sha256": "eee89bf56da6dc6e2ac046c3d09a558f7c363f65d722b6dc9f87fb2398d14374",
+      "reconstruction_sha256": "eee89bf56da6dc6e2ac046c3d09a558f7c363f65d722b6dc9f87fb2398d14374"
+    },
+    {
+      "path": "laptop_ai/tests/test_result_protocol.py",
+      "source_sha256": "a9615caeca4079c64edfb9a8fbe5bea0a7949f20a7baa1a4059dd0a8878ce3ec",
+      "reconstruction_sha256": "a9615caeca4079c64edfb9a8fbe5bea0a7949f20a7baa1a4059dd0a8878ce3ec"
+    },
+    {
+      "path": "laptop_ai/tests/test_runtime_tuning.py",
+      "source_sha256": "06627c8b8c756842c7362fce0f3b3c247d2fdc34d25bdb236dcea06391e5befd",
+      "reconstruction_sha256": "06627c8b8c756842c7362fce0f3b3c247d2fdc34d25bdb236dcea06391e5befd"
+    },
+    {
+      "path": "laptop_ai/tests/test_scene_change.py",
+      "source_sha256": "de60b1af634cb0d1a8dfb38b93db930fc9034ab1ca31da51097d7e059eafec03",
+      "reconstruction_sha256": "de60b1af634cb0d1a8dfb38b93db930fc9034ab1ca31da51097d7e059eafec03"
+    },
+    {
+      "path": "laptop_ai/tests/test_viewer_app.py",
+      "source_sha256": "ef14340bf181de1495bee92dddd092fba20b266e34af092caf1ef11a0f4cdb9e",
+      "reconstruction_sha256": "ef14340bf181de1495bee92dddd092fba20b266e34af092caf1ef11a0f4cdb9e"
+    },
+    {
+      "path": "laptop_ai/tests/test_visualization.py",
+      "source_sha256": "d3c2c402c9cc79870e46b14d4fa5a246a70c64e58f770ca598fe278876f5a8b7",
+      "reconstruction_sha256": "d3c2c402c9cc79870e46b14d4fa5a246a70c64e58f770ca598fe278876f5a8b7"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/LICENSE",
+      "source_sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "reconstruction_sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/README.md",
+      "source_sha256": "b300bb699e389e12c5b1090f9b2808e637b4b4eb4237f32ef84d41fccd119835",
+      "reconstruction_sha256": "b300bb699e389e12c5b1090f9b2808e637b4b4eb4237f32ef84d41fccd119835"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/config/altitude_guard.yaml",
+      "source_sha256": "4a2176f9457b08f7a4d31639174a607399d7bc77039b36da7c5fd59de875d441",
+      "reconstruction_sha256": "4a2176f9457b08f7a4d31639174a607399d7bc77039b36da7c5fd59de875d441"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/config/autonomous_cleaning.yaml",
+      "source_sha256": "773e4c68910124ed33bd14eb30f7775286c32eefd11770e97570e6b2c7892e0c",
+      "reconstruction_sha256": "773e4c68910124ed33bd14eb30f7775286c32eefd11770e97570e6b2c7892e0c"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/config/distance_controller.yaml",
+      "source_sha256": "065635ac3d1374ca986a4efbf2e2d217a89f213c3a6240dfcbb02dee10425c89",
+      "reconstruction_sha256": "065635ac3d1374ca986a4efbf2e2d217a89f213c3a6240dfcbb02dee10425c89"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/config/distance_filter.yaml",
+      "source_sha256": "6675ab1c57ea83375f0240a66c0aaac73d755af642f1703f9b98d89a91c450e2",
+      "reconstruction_sha256": "6675ab1c57ea83375f0240a66c0aaac73d755af642f1703f9b98d89a91c450e2"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/config/distance_mission.yaml",
+      "source_sha256": "e2ba339dbe3a6bd38d09c1bcee693edd819aeae227494b2b1ddee1ca1ff76844",
+      "reconstruction_sha256": "e2ba339dbe3a6bd38d09c1bcee693edd819aeae227494b2b1ddee1ca1ff76844"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/config/mavlink-router.conf.example",
+      "source_sha256": "9c7ac60ff09be50c4c656c492adfdb6ff6fda62b8c5795af10ad38ebaa151523",
+      "reconstruction_sha256": "9c7ac60ff09be50c4c656c492adfdb6ff6fda62b8c5795af10ad38ebaa151523"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/config/nozzle_visual_servo.yaml",
+      "source_sha256": "400ac8bc6b4297c419db38ae17eee98ad8e4139de90d1930493cb3a383552ea3",
+      "reconstruction_sha256": "400ac8bc6b4297c419db38ae17eee98ad8e4139de90d1930493cb3a383552ea3"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/config/panel_distance_mission.yaml",
+      "source_sha256": "76b0046b3e428d36d3224833f38728b278b66cbd0e5afec84d0c111039bb03d1",
+      "reconstruction_sha256": "76b0046b3e428d36d3224833f38728b278b66cbd0e5afec84d0c111039bb03d1"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/config/panel_mission.yaml",
+      "source_sha256": "c1d22b248ede471793cf9e3a31e5c150d7df00606c68a6d78d9a1ad471558a12",
+      "reconstruction_sha256": "c1d22b248ede471793cf9e3a31e5c150d7df00606c68a6d78d9a1ad471558a12"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/config/panel_survey.yaml",
+      "source_sha256": "11b3678711cb4de563893d836f70420c71ddf1b9557564c9e43fbe67a5a14db3",
+      "reconstruction_sha256": "11b3678711cb4de563893d836f70420c71ddf1b9557564c9e43fbe67a5a14db3"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/config/perception_receiver.yaml",
+      "source_sha256": "73cf232fba18547a607d267002eace70bd3b451cb8baef70ab34d53d1933e658",
+      "reconstruction_sha256": "73cf232fba18547a607d267002eace70bd3b451cb8baef70ab34d53d1933e658"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/config/solenoid_bench.yaml",
+      "source_sha256": "4633051f4f0f2bd1c7fb1d2ea6b97a3291c7ec44a5933502e4efe0fda764f1e9",
+      "reconstruction_sha256": "4633051f4f0f2bd1c7fb1d2ea6b97a3291c7ec44a5933502e4efe0fda764f1e9"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/config/spray_controller.yaml",
+      "source_sha256": "b90d4ebb5ec7d588971f95d8df219a907da5becda3748ce5f11dc308fd8bd48b",
+      "reconstruction_sha256": "b90d4ebb5ec7d588971f95d8df219a907da5becda3748ce5f11dc308fd8bd48b"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/config/spray_hover_test.yaml",
+      "source_sha256": "0761a6e849e7cd3b3d73ed7c16b0d90e271d37027361bda92ca74e8fe67a70ab",
+      "reconstruction_sha256": "0761a6e849e7cd3b3d73ed7c16b0d90e271d37027361bda92ca74e8fe67a70ab"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/config/spray_reaction_compensator.yaml",
+      "source_sha256": "73897f606215e8d0059b5c3d6017587fd7eaf78a5257d495b8b47bd37cba9c76",
+      "reconstruction_sha256": "73897f606215e8d0059b5c3d6017587fd7eaf78a5257d495b8b47bd37cba9c76"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/config/spray_reaction_compensator_integrated.yaml",
+      "source_sha256": "a007f58ea90cfd0d7bea081cbf299b936b537f4ff1273973fd9c53f3c62e1d2b",
+      "reconstruction_sha256": "a007f58ea90cfd0d7bea081cbf299b936b537f4ff1273973fd9c53f3c62e1d2b"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/config/tf_luna_serial.yaml",
+      "source_sha256": "9df6b438feae965ad0fd35e73f65e63ae8985c4b834e14e6d3ccc538c9c5f88a",
+      "reconstruction_sha256": "9df6b438feae965ad0fd35e73f65e63ae8985c4b834e14e6d3ccc538c9c5f88a"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/config/video_streamer.yaml",
+      "source_sha256": "3f1e84249334281f43ac13ed8844b1641e2d09299e44d26e6e195d981eef668c",
+      "reconstruction_sha256": "3f1e84249334281f43ac13ed8844b1641e2d09299e44d26e6e195d981eef668c"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/config/video_streamer_low_light.yaml",
+      "source_sha256": "ededa91b518e7c64fd998cc4dcaa47936492c47bef365e456faf28e63edffa8c",
+      "reconstruction_sha256": "ededa91b518e7c64fd998cc4dcaa47936492c47bef365e456faf28e63edffa8c"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/config/virtual_distance_sensor.yaml",
+      "source_sha256": "816d73b05183f34c0d50912612b06856c3f465dde8fe420fb5d7a41a55049dc2",
+      "reconstruction_sha256": "816d73b05183f34c0d50912612b06856c3f465dde8fe420fb5d7a41a55049dc2"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/__init__.py",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reconstruction_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/altitude_guard.py",
+      "source_sha256": "65d284ce4b00b508e1f36c64c4a161098abe5e1dc1a5e93a7889525623c78dc5",
+      "reconstruction_sha256": "65d284ce4b00b508e1f36c64c4a161098abe5e1dc1a5e93a7889525623c78dc5"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/autonomous_cleaning_fsm.py",
+      "source_sha256": "f8fddec823da6c350471c1f4475f706173d32bdead173e2c493efa59b377bc6a",
+      "reconstruction_sha256": "f8fddec823da6c350471c1f4475f706173d32bdead173e2c493efa59b377bc6a"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/autonomous_cleaning_mission_node.py",
+      "source_sha256": "4e97eff951217f988289d172be3dec10c9ba9c9d35089563373a0c96530db8c6",
+      "reconstruction_sha256": "4e97eff951217f988289d172be3dec10c9ba9c9d35089563373a0c96530db8c6"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/distance_controller.py",
+      "source_sha256": "30f5031b59f8e4d418ed639340125b7590df630632ebb4a20ed2a4ed3922ae3d",
+      "reconstruction_sha256": "30f5031b59f8e4d418ed639340125b7590df630632ebb4a20ed2a4ed3922ae3d"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/distance_filter.py",
+      "source_sha256": "f559e2acc00ccb389d4994e1af720caec3a50bd161996d3ccd79b247029f0e50",
+      "reconstruction_sha256": "f559e2acc00ccb389d4994e1af720caec3a50bd161996d3ccd79b247029f0e50"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/mission_manager_node.py",
+      "source_sha256": "fecc72dd557d0c3129ab64d590aaf3f5cc939be700a35dd7e4b2b06a5964b376",
+      "reconstruction_sha256": "fecc72dd557d0c3129ab64d590aaf3f5cc939be700a35dd7e4b2b06a5964b376"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/nozzle_alignment.py",
+      "source_sha256": "cd06fd51d61df3c05a6bd1498314fcb2c4ebc423b200eb469bf21364c38e1cbf",
+      "reconstruction_sha256": "cd06fd51d61df3c05a6bd1498314fcb2c4ebc423b200eb469bf21364c38e1cbf"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/nozzle_visual_servo_node.py",
+      "source_sha256": "efcfc8bb478e7254e81eb9738d0200885c5257e5fad616aff04b6c17780ee562",
+      "reconstruction_sha256": "efcfc8bb478e7254e81eb9738d0200885c5257e5fad616aff04b6c17780ee562"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/operator_gateway_node.py",
+      "source_sha256": "fbf562d236afe4c03d8138794aa6d47850c3f6e21e6b671247ce218538f0d638",
+      "reconstruction_sha256": "fbf562d236afe4c03d8138794aa6d47850c3f6e21e6b671247ce218538f0d638"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/panel_distance_mission_fsm.py",
+      "source_sha256": "6c38279a4aba031fd9af0c00270718ac99f5abbb165a79636440000fa3325719",
+      "reconstruction_sha256": "6c38279a4aba031fd9af0c00270718ac99f5abbb165a79636440000fa3325719"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/panel_distance_mission_node.py",
+      "source_sha256": "75559ca969532a1ece1ff1fab484ae05cdbe423c70f507b452a0dd51a365592e",
+      "reconstruction_sha256": "75559ca969532a1ece1ff1fab484ae05cdbe423c70f507b452a0dd51a365592e"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/panel_mapping.py",
+      "source_sha256": "696d5a63973d6a2affa95a95c30f2268df30dc9dc0d73a0f451005cad10858ae",
+      "reconstruction_sha256": "696d5a63973d6a2affa95a95c30f2268df30dc9dc0d73a0f451005cad10858ae"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/panel_mission_fsm.py",
+      "source_sha256": "64674032990e396f5935f77994a3e60f25cd0df3b14e0092013bf1a8d9ea1419",
+      "reconstruction_sha256": "64674032990e396f5935f77994a3e60f25cd0df3b14e0092013bf1a8d9ea1419"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/panel_mission_node.py",
+      "source_sha256": "6694ba4402f2c762c6c9f6c6a67d84f4c2ba600808756b434b469f203d069d45",
+      "reconstruction_sha256": "6694ba4402f2c762c6c9f6c6a67d84f4c2ba600808756b434b469f203d069d45"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/panel_survey_node.py",
+      "source_sha256": "0cc6e1ace7b95f0719d5f0e7e213e53f4517607c2d7e19485872c136d90371b3",
+      "reconstruction_sha256": "0cc6e1ace7b95f0719d5f0e7e213e53f4517607c2d7e19485872c136d90371b3"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/perception_control_sender_node.py",
+      "source_sha256": "23661d0e67ff19c2a97f6beb42423909b34e4372c44466ba11da57df6f0c76c4",
+      "reconstruction_sha256": "23661d0e67ff19c2a97f6beb42423909b34e4372c44466ba11da57df6f0c76c4"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/perception_protocol.py",
+      "source_sha256": "fa2c45e929c5b7bd2376147f635b2fd6ca8b04052e5d5b03d20e80a94b55e029",
+      "reconstruction_sha256": "fa2c45e929c5b7bd2376147f635b2fd6ca8b04052e5d5b03d20e80a94b55e029"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/perception_receiver_node.py",
+      "source_sha256": "429e0177a81ac9ab718c8e6426a7c705b86d1de29136676601e2ca17aa0c56d2",
+      "reconstruction_sha256": "429e0177a81ac9ab718c8e6426a7c705b86d1de29136676601e2ca17aa0c56d2"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/route_planner.py",
+      "source_sha256": "2f502d686d7cf2b61da74e3fb48ed9ca3ec338690e6bfb53bdb45b3be6dfa7ed",
+      "reconstruction_sha256": "2f502d686d7cf2b61da74e3fb48ed9ca3ec338690e6bfb53bdb45b3be6dfa7ed"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/solenoid_bench_core.py",
+      "source_sha256": "974a58ea07eb4361ad60989f9cbe3a169f82929e09fb2d62c7b9f22a919ce799",
+      "reconstruction_sha256": "974a58ea07eb4361ad60989f9cbe3a169f82929e09fb2d62c7b9f22a919ce799"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/solenoid_bench_node.py",
+      "source_sha256": "02a44cedceb3213ca326a2c66c1ce7ded36dc3824fadb337950908e7ce3581bf",
+      "reconstruction_sha256": "02a44cedceb3213ca326a2c66c1ce7ded36dc3824fadb337950908e7ce3581bf"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/spray_actuator.py",
+      "source_sha256": "d0e850b8823d5517892debe2ec3a959399f57352e758c87ac00735d6cb14eb87",
+      "reconstruction_sha256": "d0e850b8823d5517892debe2ec3a959399f57352e758c87ac00735d6cb14eb87"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/spray_controller_node.py",
+      "source_sha256": "576bf406f392039095cc030636414d385eee364202b206a2537a0725bc03902b",
+      "reconstruction_sha256": "576bf406f392039095cc030636414d385eee364202b206a2537a0725bc03902b"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/spray_hover_test_fsm.py",
+      "source_sha256": "1c90caaed1e7389508656ced68347d746f1954ea9d21e2a7a99ef9b67889999e",
+      "reconstruction_sha256": "1c90caaed1e7389508656ced68347d746f1954ea9d21e2a7a99ef9b67889999e"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/spray_hover_test_node.py",
+      "source_sha256": "7b4cf077ce14716fc45f88fac0fdf9ee66c0a7738722c3523909b7288ad657f1",
+      "reconstruction_sha256": "7b4cf077ce14716fc45f88fac0fdf9ee66c0a7738722c3523909b7288ad657f1"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/spray_reaction.py",
+      "source_sha256": "117d2a3c9439a785cea88e9534e0a4f9be0242ee7a52fb6f912e16f8522000f2",
+      "reconstruction_sha256": "117d2a3c9439a785cea88e9534e0a4f9be0242ee7a52fb6f912e16f8522000f2"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/spray_reaction_compensator.py",
+      "source_sha256": "afe1ad2c6d3599a73de80629bb21e7e6d1c9d1b48599e155c54fab5e52119a20",
+      "reconstruction_sha256": "afe1ad2c6d3599a73de80629bb21e7e6d1c9d1b48599e155c54fab5e52119a20"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/spray_sequence.py",
+      "source_sha256": "a0ebd2514441411d7b15cc3d681f821159fa5ffee1d5050cee6f22c0c8ad3123",
+      "reconstruction_sha256": "a0ebd2514441411d7b15cc3d681f821159fa5ffee1d5050cee6f22c0c8ad3123"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/survey_planner.py",
+      "source_sha256": "ada13f576dec728ef295b044b650035a498dd018d96b6f5eb7a999754c31c6c0",
+      "reconstruction_sha256": "ada13f576dec728ef295b044b650035a498dd018d96b6f5eb7a999754c31c6c0"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/tf_luna_serial.py",
+      "source_sha256": "5e1c5da96db4c967794d4e39be7a2f6a64838fbe7057adf4c867e101082a7389",
+      "reconstruction_sha256": "5e1c5da96db4c967794d4e39be7a2f6a64838fbe7057adf4c867e101082a7389"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/video_streamer_node.py",
+      "source_sha256": "202a6ca3ae453053c7a005e5ba70d822880531e51991a7de76310a5f01b50b15",
+      "reconstruction_sha256": "202a6ca3ae453053c7a005e5ba70d822880531e51991a7de76310a5f01b50b15"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/video_streaming.py",
+      "source_sha256": "2551cae73c1afc830830a639d556ef68268dea0d581303417d3918b483e946ee",
+      "reconstruction_sha256": "2551cae73c1afc830830a639d556ef68268dea0d581303417d3918b483e946ee"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/da_daka_control/virtual_distance_sensor.py",
+      "source_sha256": "df484f2466ed45a67ffab470620189077f5509b18ba3b95895d483c915558eb6",
+      "reconstruction_sha256": "df484f2466ed45a67ffab470620189077f5509b18ba3b95895d483c915558eb6"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/launch/autonomous_cleaning.launch.py",
+      "source_sha256": "a2aa7bc72609324369cab87452232f1c5aa2e88f0139bcb5eb0cfd4ac5393173",
+      "reconstruction_sha256": "a2aa7bc72609324369cab87452232f1c5aa2e88f0139bcb5eb0cfd4ac5393173"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/launch/distance_control.launch.py",
+      "source_sha256": "202cd94371aa1aa7ab637ddf5cc2b384cbcc244b12ed96611a4f457097b17b11",
+      "reconstruction_sha256": "202cd94371aa1aa7ab637ddf5cc2b384cbcc244b12ed96611a4f457097b17b11"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/launch/distance_mission.launch.py",
+      "source_sha256": "26624a1e2d39adcf0673bb16790b34a4c0e37ec9b87b5ba0be6f45c9c4c9350e",
+      "reconstruction_sha256": "26624a1e2d39adcf0673bb16790b34a4c0e37ec9b87b5ba0be6f45c9c4c9350e"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/launch/panel_distance_mission.launch.py",
+      "source_sha256": "b03498ca7592beba12f727c5bd36efbf2dbffcfd0e4c3c8a9bc9dbc81aaa2254",
+      "reconstruction_sha256": "b03498ca7592beba12f727c5bd36efbf2dbffcfd0e4c3c8a9bc9dbc81aaa2254"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/launch/panel_localization_test.launch.py",
+      "source_sha256": "9a4c4f66abc2ce7dff220b5df280a060376b1789c8bbf2926d611cb3922cc237",
+      "reconstruction_sha256": "9a4c4f66abc2ce7dff220b5df280a060376b1789c8bbf2926d611cb3922cc237"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/launch/panel_mission.launch.py",
+      "source_sha256": "1bd94caa0f2658e46fde1e72902779d5733b028b04da1e419b2d44984232c70a",
+      "reconstruction_sha256": "1bd94caa0f2658e46fde1e72902779d5733b028b04da1e419b2d44984232c70a"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/launch/solenoid_bench.launch.py",
+      "source_sha256": "6a9508c2def641211c50c388f1ce5975721ea21636e6523e96ec4ff850f358b5",
+      "reconstruction_sha256": "6a9508c2def641211c50c388f1ce5975721ea21636e6523e96ec4ff850f358b5"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/launch/spray_hover_test.launch.py",
+      "source_sha256": "5053123d025d20f875da5b5172111e3d176dc73dbe28e65e65cc36ad35e73e9a",
+      "reconstruction_sha256": "5053123d025d20f875da5b5172111e3d176dc73dbe28e65e65cc36ad35e73e9a"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/launch/spray_reaction_compensator.launch.py",
+      "source_sha256": "1dcb5f9cc1784aa0f5497e085c8a51961f44977af24173ba7d104316f2265424",
+      "reconstruction_sha256": "1dcb5f9cc1784aa0f5497e085c8a51961f44977af24173ba7d104316f2265424"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/launch/tf_luna_serial.launch.py",
+      "source_sha256": "d600e1f23d3e9f1d19d8f77775be6a75d10f2f1d168154ddfef749fa369c2d7c",
+      "reconstruction_sha256": "d600e1f23d3e9f1d19d8f77775be6a75d10f2f1d168154ddfef749fa369c2d7c"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/launch/virtual_distance_sensor.launch.py",
+      "source_sha256": "6b731d16174327d700cf144ae0bdd525981cee573ace863da9d82123c99290d7",
+      "reconstruction_sha256": "6b731d16174327d700cf144ae0bdd525981cee573ace863da9d82123c99290d7"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/package.xml",
+      "source_sha256": "d9f92f78f6645160363b3c3553f93f3050758762ecec1b7487e469de7105785a",
+      "reconstruction_sha256": "d9f92f78f6645160363b3c3553f93f3050758762ecec1b7487e469de7105785a"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/resource/da_daka_control",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reconstruction_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/setup.cfg",
+      "source_sha256": "91a329a01997486e4a9b70991d6cc809549f96e9dd59e14de99c0da43c85bdbe",
+      "reconstruction_sha256": "91a329a01997486e4a9b70991d6cc809549f96e9dd59e14de99c0da43c85bdbe"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/setup.py",
+      "source_sha256": "9fa5531b5b9d9ac5d5f5e9fcd0e49ad39c869984fda6cc2fcefe1de4d2831308",
+      "reconstruction_sha256": "9fa5531b5b9d9ac5d5f5e9fcd0e49ad39c869984fda6cc2fcefe1de4d2831308"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_altitude_guard.py",
+      "source_sha256": "7316cfcf9f44e2e88851ad08535ffb966815357bb50e22ff13a38814ffa044eb",
+      "reconstruction_sha256": "7316cfcf9f44e2e88851ad08535ffb966815357bb50e22ff13a38814ffa044eb"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_autonomous_cleaning_fsm.py",
+      "source_sha256": "886b82a2a8674a007bd88859629798efa986041d05fa05344eedd09b0c1e9777",
+      "reconstruction_sha256": "886b82a2a8674a007bd88859629798efa986041d05fa05344eedd09b0c1e9777"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_autonomous_cleaning_integration.py",
+      "source_sha256": "3b55421b87ede512e39f88fa5827411ba793b6435354fe2472b7a57d9baa8023",
+      "reconstruction_sha256": "3b55421b87ede512e39f88fa5827411ba793b6435354fe2472b7a57d9baa8023"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_battery_sag.py",
+      "source_sha256": "2eb13a2973ec9fc6ff7e99b5d0ce0cdfcf71297e45ac02154fb446c729136f78",
+      "reconstruction_sha256": "2eb13a2973ec9fc6ff7e99b5d0ce0cdfcf71297e45ac02154fb446c729136f78"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_copyright.py",
+      "source_sha256": "ea71bbbc6247b5c14d176ed09f39ee274d563cc9b2ec355828ea451ceff31757",
+      "reconstruction_sha256": "ea71bbbc6247b5c14d176ed09f39ee274d563cc9b2ec355828ea451ceff31757"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_distance_controller.py",
+      "source_sha256": "16851e9e8ce31ca657d10961b4cb620c94152f209771008745ab5375ff029200",
+      "reconstruction_sha256": "16851e9e8ce31ca657d10961b4cb620c94152f209771008745ab5375ff029200"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_distance_filter.py",
+      "source_sha256": "0e77ab701f42c9b74651ae15de69578415a2afa9d2ea5fd17b40cb12fc131dff",
+      "reconstruction_sha256": "0e77ab701f42c9b74651ae15de69578415a2afa9d2ea5fd17b40cb12fc131dff"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_flake8.py",
+      "source_sha256": "37a813a0507f0ce51a2d0b57312d2cc078a0307a3ca85580ea801b0d2f9755d2",
+      "reconstruction_sha256": "37a813a0507f0ce51a2d0b57312d2cc078a0307a3ca85580ea801b0d2f9755d2"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_mission_manager.py",
+      "source_sha256": "1daa1b082dd55bfca0e1bc5dc27db8665a7b2c28b13ddc7a1de98558b15db770",
+      "reconstruction_sha256": "1daa1b082dd55bfca0e1bc5dc27db8665a7b2c28b13ddc7a1de98558b15db770"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_nozzle_alignment.py",
+      "source_sha256": "e2ef8c03218d70705b48a2f0d380c921bf66fdb461e204291bd758ab9553e3bd",
+      "reconstruction_sha256": "e2ef8c03218d70705b48a2f0d380c921bf66fdb461e204291bd758ab9553e3bd"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_operator_gateway.py",
+      "source_sha256": "64acc8ff8aa3133afe97c10cc9147b8cdf997be333291b85ac6a33178a8a7940",
+      "reconstruction_sha256": "64acc8ff8aa3133afe97c10cc9147b8cdf997be333291b85ac6a33178a8a7940"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_panel_distance_mission_fsm.py",
+      "source_sha256": "12e1e2c830a7bc6a628ee056825e94a783b2095107f5e5f8c5967dc1d747219f",
+      "reconstruction_sha256": "12e1e2c830a7bc6a628ee056825e94a783b2095107f5e5f8c5967dc1d747219f"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_panel_mapping.py",
+      "source_sha256": "44b9316ff923043e1151c54e7a42a7b60af558e3877fb9c6cd182f4a9c8d027c",
+      "reconstruction_sha256": "44b9316ff923043e1151c54e7a42a7b60af558e3877fb9c6cd182f4a9c8d027c"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_panel_mission_fsm.py",
+      "source_sha256": "eb0ba1a7024ef812f92fefdc7d356f81a11632fe368087610cf84f62b3752889",
+      "reconstruction_sha256": "eb0ba1a7024ef812f92fefdc7d356f81a11632fe368087610cf84f62b3752889"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_pep257.py",
+      "source_sha256": "e8b88d49ee296987b1b40069f81019b5fa09b1aa1bfee9a1faae45bb5cf53eda",
+      "reconstruction_sha256": "e8b88d49ee296987b1b40069f81019b5fa09b1aa1bfee9a1faae45bb5cf53eda"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_perception_protocol.py",
+      "source_sha256": "ddb2a27c01cc746d97504d05cb8ecd52655339a1ebb009051a08efa3f6c75adb",
+      "reconstruction_sha256": "ddb2a27c01cc746d97504d05cb8ecd52655339a1ebb009051a08efa3f6c75adb"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_route_planner.py",
+      "source_sha256": "7c0e633f1a9578d63b8fe0065589a49c25c52c993b3bef188cf73ec58fc31ad3",
+      "reconstruction_sha256": "7c0e633f1a9578d63b8fe0065589a49c25c52c993b3bef188cf73ec58fc31ad3"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_solenoid_bench_core.py",
+      "source_sha256": "2f4691baa9b5f011419ee598f2955587b7c8b0290b3b673b9294bf23543b4af1",
+      "reconstruction_sha256": "2f4691baa9b5f011419ee598f2955587b7c8b0290b3b673b9294bf23543b4af1"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_spray_actuator.py",
+      "source_sha256": "26e2038946c8cff2b59771f25bd1f937206c82e209578e5207b2e1bc287ea9bb",
+      "reconstruction_sha256": "26e2038946c8cff2b59771f25bd1f937206c82e209578e5207b2e1bc287ea9bb"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_spray_hover_test_fsm.py",
+      "source_sha256": "cb99205f54d0c7aed54e66745c4cc2455d485d6d730ff91f44c63f2f104df711",
+      "reconstruction_sha256": "cb99205f54d0c7aed54e66745c4cc2455d485d6d730ff91f44c63f2f104df711"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_spray_reaction.py",
+      "source_sha256": "8da5f44fe9e5a08fd37314df992861e58965427bddddd56442bffc1f7c2bb572",
+      "reconstruction_sha256": "8da5f44fe9e5a08fd37314df992861e58965427bddddd56442bffc1f7c2bb572"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_spray_sequence.py",
+      "source_sha256": "f3a572aefda7c88df33ca56e7d20a21cb2c332cc4d6076ee0664dbf13bfa342d",
+      "reconstruction_sha256": "f3a572aefda7c88df33ca56e7d20a21cb2c332cc4d6076ee0664dbf13bfa342d"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_survey_ghost_cluster.py",
+      "source_sha256": "e305f5c387231751f66f0d6d206a84bd5accbe775056ad00dbf5525e5807e8c6",
+      "reconstruction_sha256": "e305f5c387231751f66f0d6d206a84bd5accbe775056ad00dbf5525e5807e8c6"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_survey_planner.py",
+      "source_sha256": "dc2db27c9790d3edea0119b32a2ce7b224e4bbd6677e91aff1ebb86bc341e88e",
+      "reconstruction_sha256": "dc2db27c9790d3edea0119b32a2ce7b224e4bbd6677e91aff1ebb86bc341e88e"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_survey_planner_scan.py",
+      "source_sha256": "2952feea3070c6cc59851ead3ac6844846ed67de05e8e29ada00ebad12de5667",
+      "reconstruction_sha256": "2952feea3070c6cc59851ead3ac6844846ed67de05e8e29ada00ebad12de5667"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_tf_luna_serial.py",
+      "source_sha256": "abba2a79e6d51e9451520b1961bc1d1db54155bc17c3c7055cb0f11725c6f21d",
+      "reconstruction_sha256": "abba2a79e6d51e9451520b1961bc1d1db54155bc17c3c7055cb0f11725c6f21d"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_video_streamer.py",
+      "source_sha256": "ea3ae765e233e43f2c6fb3659f447a5e6901fa41f2888c7a595a9cbf6fa1d806",
+      "reconstruction_sha256": "ea3ae765e233e43f2c6fb3659f447a5e6901fa41f2888c7a595a9cbf6fa1d806"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_control/test/test_virtual_distance_sensor.py",
+      "source_sha256": "1172f87f745da2a4f77c29879a7b7e5966fd24be2c40b1382bf6b9dcb87cda0a",
+      "reconstruction_sha256": "1172f87f745da2a4f77c29879a7b7e5966fd24be2c40b1382bf6b9dcb87cda0a"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_interfaces/CMakeLists.txt",
+      "source_sha256": "1509d493b2ad5357adc2dfa3fdf6844d35cd6e4513d6e961ac5709b197187f7b",
+      "reconstruction_sha256": "1509d493b2ad5357adc2dfa3fdf6844d35cd6e4513d6e961ac5709b197187f7b"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_interfaces/msg/PanelDetection.msg",
+      "source_sha256": "a5ef604ae32c5bdda774ee1c2d949f787393155645d8470690a4f6020aaa80f3",
+      "reconstruction_sha256": "a5ef604ae32c5bdda774ee1c2d949f787393155645d8470690a4f6020aaa80f3"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_interfaces/msg/PanelMap.msg",
+      "source_sha256": "f6f8b214b1a62028815472cc3a701c99247fe45a27ede58682d2bf047ebeb72a",
+      "reconstruction_sha256": "f6f8b214b1a62028815472cc3a701c99247fe45a27ede58682d2bf047ebeb72a"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_interfaces/msg/PanelTarget.msg",
+      "source_sha256": "31dac655b7f0dc6ac29bba8b097987774aeff4bed7a5a19d703cfac784972607",
+      "reconstruction_sha256": "31dac655b7f0dc6ac29bba8b097987774aeff4bed7a5a19d703cfac784972607"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_interfaces/msg/PerceptionResult.msg",
+      "source_sha256": "ff487f3255ac6295fe924ee71364e8e00f978b7d1a4f429ea5cb3800d45d7e94",
+      "reconstruction_sha256": "ff487f3255ac6295fe924ee71364e8e00f978b7d1a4f429ea5cb3800d45d7e94"
+    },
+    {
+      "path": "ros2_ws/src/da_daka_interfaces/package.xml",
+      "source_sha256": "8a9da07aec057256d90f024eac4233f19e65ddb4f7f33528633a53a9e7ea9d84",
+      "reconstruction_sha256": "8a9da07aec057256d90f024eac4233f19e65ddb4f7f33528633a53a9e7ea9d84"
+    },
+    {
+      "path": "tools/pi_panel_cpu_runtime.py",
+      "source_sha256": "e09d5fa76b63561c7d18991571ca00ffe546dad7b53bc4511ea60685407bc97e",
+      "reconstruction_sha256": "e09d5fa76b63561c7d18991571ca00ffe546dad7b53bc4511ea60685407bc97e"
+    }
+  ]
+}

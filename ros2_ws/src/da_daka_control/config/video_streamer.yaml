@@ -1,0 +1,17 @@
+video_streamer:
+  ros__parameters:
+    enabled_on_startup: false
+    executable: "rpicam-vid"
+    laptop_ip: "127.0.0.1"
+    port: 5600
+    width: 1280
+    height: 720
+    framerate: 20
+    bitrate_bps: 4000000
+    # 2026-08-22 IMX708 night profile verified at mean brightness 24.92.
+    # At 20 fps, 50 ms equals one frame period. Override both with zero for AE.
+    shutter_us: 50000
+    gain: 32.0
+    monitor_rate_hz: 2.0
+    restart_delay_s: 2.0
+    maximum_restart_attempts: 3

@@ -1,0 +1,90 @@
+# The mission node is renamed per profile (autonomous_cleaning,
+# panel_localization_test, ...). A fixed node key silently drops this
+# whole file for every renamed profile, so match any node name.
+"/**":
+  ros__parameters:
+    # Both approvals remain false until route clearance and camera/nozzle
+    # calibration have been checked on the physical vehicle.
+    configuration_approved: false
+    calibration_approved: false
+    require_live_spray: true
+
+    survey_duration_s: 3.0
+    survey_distance_m: 3.0
+    # 2026-08-21 flight: hold the measured launch point and yaw before survey.
+    survey_home_tolerance_m: 0.30
+    survey_home_max_speed_mps: 0.35
+    survey_home_stable_s: 2.0
+    survey_home_speed_filter_window_s: 0.30
+    survey_home_yaw_tolerance_deg: 3.0
+    spray_distance_m: 1.0
+    spray_duration_s: 3.0
+    maximum_survey_panels: 32
+    max_spray_attempts: 3
+
+    arrival_tolerance_m: 0.25
+    arrival_max_speed_mps: 0.10
+    arrival_stable_s: 1.0
+    cruise_speed_mps: 0.65
+    panel_visible_speed_mps: 0.18
+    horizontal_accel_mps2: 0.50
+    horizontal_slow_zone_m: 1.0
+    minimum_approach_speed_mps: 0.10
+    # Flight-tested braking/settling profile at the exact target.
+    target_snap_distance_m: 0.10
+    maximum_vertical_setpoint_speed_mps: 0.20
+
+    lidar_z_gain: 1.0
+    lidar_z_tolerance_m: 0.10
+    # Keep controlling inside the wider arrival gate to avoid boundary hunt.
+    lidar_z_control_deadband_m: 0.03
+    lidar_z_max_offset_m: 0.35
+    reacquire_radius_m: 0.25
+    reacquire_period_s: 5.0
+
+    prestream_s: 2.0
+    perception_stable_s: 0.5
+    alignment_stable_s: 0.7
+    yaw_tolerance_deg: 5.0
+    launch_yaw_stable_s: 1.0
+    launch_yaw_max_deviation_deg: 2.0
+    # 2026-08-23: with 15 satellites / h_acc 0.43 m the EKF needed longer
+    # than 2 s to leave its stationary assumption after lift-off. Later
+    # stages still reject constant-position mode outright.
+    takeoff_const_pos_grace_s: 6.0
+
+    sensor_timeout_s: 0.4
+    telemetry_timeout_s: 0.5
+    perception_timeout_s: 0.7
+    status_timeout_s: 6.0
+    state_timeout_s: 40.0
+    takeoff_timeout_s: 45.0
+    # The localization profile spends about 15 s stabilizing at home and its
+    # 3 x 2 m five-stop scan needs at least 29.4 s; retain operational margin.
+    survey_timeout_s: 55.0
+    reacquire_timeout_s: 20.0
+    verification_timeout_s: 20.0
+
+    # Permanent operator-requested start/in-flight threshold (2026-08-22).
+    # PX4 low-battery failsafes remain independent and take precedence.
+    minimum_battery_remaining: 0.10
+    # 2026-08-23 flights 135352 and 140930 aborted on "battery 9%" while the
+    # pack was fine: 31% at rest collapsed to 4% under 22.8 A of hover and
+    # recovered to 20% on the ground. PX4 reads charge off the sagging
+    # terminal voltage, so undo the resistive drop before gating. The
+    # resistance is the measured pack average across those four flights
+    # (dV/dI ~ 0.030-0.046 ohm).
+    battery_cell_count: 4
+    battery_internal_resistance_ohm: 0.04
+    battery_empty_volts_per_cell: 3.50
+    battery_full_volts_per_cell: 4.05
+    # Ride out throttle transients; PX4's own failsafe stays authoritative.
+    battery_sustained_below_s: 3.0
+    require_enabled_sensors_healthy: true
+    # Permanent field configuration: 0x10000 absent RC receiver plus the
+    # previously approved 0x4000 bit. All other unhealthy bits still block.
+    ignored_unhealthy_sensor_mask: 81920
+    loiter_mode: "AUTO.LOITER"
+    land_mode: "AUTO.LAND"
+    tick_rate_hz: 20.0
+    action_retry_s: 1.0

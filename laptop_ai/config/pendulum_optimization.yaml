@@ -1,0 +1,47 @@
+optimization:
+  # Disabled until real dirt-model accuracy and link measurements are profiled.
+  enabled: false
+  # observe: recommendation/log only. apply: expose selected profile to an adapter.
+  # Neither mode sends PX4/MAVROS/flight commands.
+  mode: "observe"
+  min_accuracy: 0.80
+  target_fps: 30.0
+  # Replace with measured usable Pi -> laptop video bandwidth.
+  bandwidth_mbps: 20.0
+  network_weight: 0.5
+  compute_weight: 0.5
+  switch_margin: 0.05
+  decision_interval_s: 1.0
+  scene_change_threshold: 0.20
+
+  # Example placeholders only. These are intentionally below min_accuracy so
+  # this file cannot be mistaken for validated field profiling data.
+  # Replace every expected value with measurements from the real dirt model.
+  profiles:
+    - name: "example-low-net-heavy"
+      bitrate_mbps: 2.0
+      inference_ms: 18.0
+      accuracy: 0.0
+      detector_backend: "onnx"
+      model_path: "models/dirt_detector_heavy.onnx"
+      input_width: 640
+      input_height: 640
+      encoder_profile: "h264-2mbps"
+    - name: "example-balanced"
+      bitrate_mbps: 5.0
+      inference_ms: 10.0
+      accuracy: 0.0
+      detector_backend: "onnx"
+      model_path: "models/dirt_detector_medium.onnx"
+      input_width: 640
+      input_height: 640
+      encoder_profile: "h264-5mbps"
+    - name: "example-high-net-light"
+      bitrate_mbps: 8.0
+      inference_ms: 6.0
+      accuracy: 0.0
+      detector_backend: "onnx"
+      model_path: "models/dirt_detector_light.onnx"
+      input_width: 512
+      input_height: 512
+      encoder_profile: "h264-8mbps"

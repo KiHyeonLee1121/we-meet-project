@@ -1,0 +1,39 @@
+nozzle_visual_servo:
+  ros__parameters:
+    result_topic: "/ai/perception"
+    health_topic: "/ai/health"
+    range_topic: "/distance/filtered"
+    pose_topic: "/mavros/local_position/pose"
+    command_topic: "/visual_servo/cmd_vel_xy"
+    aligned_topic: "/visual_servo/aligned"
+    valid_topic: "/visual_servo/target_valid"
+    visible_topic: "/visual_servo/panel_visible"
+    frame_id: "map"
+    rate_hz: 20.0
+    input_timeout_s: 0.5
+
+    # These camera values must match panel_survey.yaml after field calibration.
+    footprint_width_at_1m_m: 1.30
+    footprint_height_at_1m_m: 0.73
+    image_x_positive_is_left: false
+    image_y_positive_is_forward: false
+
+    # Measure from the camera optical center to the nozzle in body FLU.
+    # +forward points toward the nose; +left points to the vehicle's left.
+    # 2026-08-17 airframe measurement: camera is 0.07 m forward and 0.05 m
+    # left of the nozzle, so the camera-to-nozzle vector is the negative.
+    camera_to_nozzle_forward_m: -0.07
+    camera_to_nozzle_left_m: -0.05
+    # Camera optical center is 0.16 m below the TF-Luna lens.
+    camera_height_above_lidar_m: -0.16
+    safe_frame_margin_norm: 0.05
+
+    deadband_norm: 0.035
+    gain_mps_per_norm: 0.35
+    maximum_speed_mps: 0.12
+    image_x_velocity_axis: "y"
+    image_y_velocity_axis: "x"
+    # After the mounted 180-degree image rotation, image-right is body-right
+    # and image-down is body-rear.
+    invert_image_x: true
+    invert_image_y: true

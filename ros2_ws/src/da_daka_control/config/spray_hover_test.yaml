@@ -1,0 +1,53 @@
+spray_hover_test:
+  ros__parameters:
+    control_rate_hz: 20.0
+
+    # Hover profile. The height error bound is an independent abort limit and
+    # must stay larger than the settled-hover tolerance.
+    hover_height_m: 3.0
+    height_tolerance_m: 0.20
+    position_tolerance_m: 0.50
+    maximum_height_error_m: 1.0
+
+    # Hold gains and bounds. max_vertical_speed_mps must stay above the
+    # compensator's max_ff_speed_mps so the feedforward can never saturate
+    # the whole vertical command on its own.
+    vertical_gain_per_s: 0.8
+    horizontal_gain_per_s: 0.8
+    max_vertical_speed_mps: 0.6
+    max_horizontal_speed_mps: 0.5
+    stable_max_speed_mps: 0.15
+
+    # Settling windows. Generous by design: the failure direction is a longer
+    # hover, not an earlier spray.
+    takeoff_stable_duration_s: 2.0
+    hover_stable_duration_s: 5.0
+    settle_stable_duration_s: 5.0
+    takeoff_timeout_s: 40.0
+    hover_timeout_s: 40.0
+    settle_timeout_s: 30.0
+    disarm_timeout_s: 60.0
+
+    # PX4 TRIG_ACT_TIME owns the real valve pulse length. This value only
+    # bounds how long the test waits before it begins post-spray settling.
+    spray_pulse_s: 3.0
+
+    prestream_duration_s: 1.5
+    command_timeout_s: 5.0
+    input_timeout_s: 0.5
+    spray_ff_timeout_s: 0.5
+
+    # Independent airborne floors.
+    minimum_battery_fraction: 0.30
+    maximum_tilt_deg: 12.0
+
+    use_feedforward: true
+    require_spray_output: false
+
+    command_topic: /mavros/setpoint_velocity/cmd_vel
+    spray_ff_topic: /spray_reaction/vertical_velocity_ff
+    reaction_enable_service: /spray_reaction/enable
+    state_topic: /spray_hover_test/state
+    result_topic: /spray_hover_test/result
+    start_service: /spray_hover_test/start
+    abort_service: /spray_hover_test/abort

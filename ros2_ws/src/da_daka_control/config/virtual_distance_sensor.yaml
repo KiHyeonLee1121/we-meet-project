@@ -1,0 +1,25 @@
+virtual_distance_sensor:
+  ros__parameters:
+    topic: /distance/raw
+    frame_id: tf_luna_link
+    local_position_topic: /mavros/local_position/pose
+    ground_reference_sample_count: 20
+    publish_rate_hz: 20.0
+
+    # constant, approach, local_position (SITL altitude), or sine
+    mode: constant
+    initial_distance_m: 1.5
+    target_distance_m: 1.0
+    approach_rate_mps: 0.05
+    sine_amplitude_m: 0.25
+    sine_period_s: 8.0
+
+    # Keep both at zero for the first deterministic test.
+    noise_stddev_m: 0.0
+    spike_probability: 0.0
+    spike_magnitude_m: 0.5
+    random_seed: 42
+
+    min_range_m: 0.2
+    max_range_m: 8.0
+    field_of_view_rad: 0.035

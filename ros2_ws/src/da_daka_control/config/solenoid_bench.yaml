@@ -1,0 +1,12 @@
+solenoid_bench:
+  ros__parameters:
+    # Fail closed. Override only for a supervised propeller-off ground test.
+    bench_test_approved: false
+    telemetry_timeout_s: 1.0
+    cooldown_s: 5.0
+    max_pulses_per_session: 3
+    command_timeout_s: 3.0
+    # Informational only; PX4 TRIG_ACT_TIME controls the physical pulse.
+    expected_trigger_duration_ms: 3000
+    service_name: /spray/bench_pulse
+    command_service: /mavros/cmd/command

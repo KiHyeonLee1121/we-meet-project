@@ -1,0 +1,33 @@
+# Applied to the historical node name. Remaining settings come from the
+# unmodified 33dcf07 archive YAML, not from test-flying-v1 or v2.
+panel_localization_test:
+  ros__parameters:
+    historical_home_follow_enabled: true
+    historical_home_crosscheck_tolerance_m: 1.5
+    historical_home_maximum_shift_m: 10.0
+    historical_global_timeout_s: 6.0
+    # Recorded route (3,1,2,6) differs from the snapshot's nearest/2-opt
+    # result for this map. Explicit historical priority; not a claimed
+    # recovery of the unavailable original planner algorithm.
+    historical_panel_order_ids: [3, 1, 2, 6]
+    # Full survey -> dynamic panel route -> descent -> reacquisition/land.
+    # No forced success, synthetic panel input, reset compensation or v1 guards.
+    survey_distance_m: 3.0
+    spray_distance_m: 1.0
+    survey_home_tolerance_m: 0.30
+    survey_home_max_speed_mps: 0.35
+    survey_home_stable_s: 2.0
+    survey_home_yaw_tolerance_deg: 3.0
+    arrival_tolerance_m: 0.25
+    arrival_max_speed_mps: 0.10
+    arrival_stable_s: 1.0
+    horizontal_accel_mps2: 0.50
+    horizontal_slow_zone_m: 1.0
+    minimum_approach_speed_mps: 0.10
+    target_snap_distance_m: 0.10
+    maximum_vertical_setpoint_speed_mps: 0.20
+    reacquire_radius_m: 0.25
+    reacquire_period_s: 5.0
+    reacquire_timeout_s: 20.0
+    prestream_s: 2.0
+    tick_rate_hz: 20.0

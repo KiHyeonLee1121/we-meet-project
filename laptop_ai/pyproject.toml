@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "da-daka-laptop-ai"
+version = "0.1.0"
+description = "NVIDIA laptop perception worker for the DA-DAKA drone"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.26,<3",
+  "opencv-python>=4.8,<5",
+  "av>=12,<17",
+  "onnxruntime-gpu>=1.18,<2",
+  "PyYAML>=6,<7",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=7.4"]
+tools = [
+  "onnx>=1.16",
+  "onnxconverter-common>=1.14,<2",
+]
+
+[project.scripts]
+da-daka-laptop-ai-viewer = "laptop_ai.viewer_app:main"
+da-daka-nvidia-check = "laptop_ai.nvidia_check:main"
+da-daka-segmentation-benchmark = "laptop_ai.segmentation_benchmark:main"
+da-daka-joint-optimizer = "laptop_ai.optimizer_cli:main"
+da-daka-convert-onnx-fp16 = "laptop_ai.convert_onnx_fp16:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["laptop_ai*"]

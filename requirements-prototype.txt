@@ -1,0 +1,7 @@
+# CPU panel-only path. Do not install laptop_ai's default GPU/ONNX extras.
+# Dependency ranges are packaging choices; exact 141 installed versions unknown.
+numpy>=1.26,<3
+opencv-python>=4.8,<5
+av>=12,<17
+PyYAML>=6,<7
+pyserial>=3.5,<4
