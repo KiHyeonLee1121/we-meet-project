@@ -1,11 +1,10 @@
 <?xml version="1.0"?>
 <package format="3">
-  <name>we_meet_flight_v1</name><version>0.2.0</version>
+  <name>we_meet_flight_core</name><version>0.2.0</version>
   <description>Camera-free 3m ascent, commanded 5m advance, yaw hold and LAND trial.</description>
   <maintainer email="maintainers@example.com">we-meet team</maintainer>
   <license>UNLICENSED</license>
   <buildtool_depend>ament_python</buildtool_depend>
-  <exec_depend>we_meet_flight_core</exec_depend>
   <exec_depend>rclpy</exec_depend><exec_depend>ament_index_python</exec_depend>
   <exec_depend>geometry_msgs</exec_depend><exec_depend>sensor_msgs</exec_depend>
   <exec_depend>std_msgs</exec_depend><exec_depend>std_srvs</exec_depend>

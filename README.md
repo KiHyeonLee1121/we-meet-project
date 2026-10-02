@@ -17,6 +17,12 @@
 
 기존 라즈베리파이 시험 코드 1/2 원본은 가져오지 못했습니다. 첨부 진단·코드·수동/자율 ULog와 [기존 da-daka_Ai](https://github.com/KiHyeonLee1121/da-daka_Ai)를 읽어 재구성했습니다. 원본과 완전히 같은 코드이거나 현장 비행을 검증한 코드라고 주장하지 않습니다. 자세한 근거는 [implementation_notes.md](docs/implementation_notes.md), 개발 검증은 [validation.md](docs/validation.md)에 있습니다.
 
+## v1/v2 공통 로직 통일
+
+두 브랜치 모두 동일한 **`we_meet_flight_core` 공통 패키지**를 사용합니다. v1의 실제 발행 시각 기반 명령 적분·라이다 raw 보정·상승 안정 조건·단계 제한시간·중단/착륙 인계를 기준으로 통일했습니다. 카메라가 정상이고 목표가 아직 검출되지 않았다면 같은 입력에서 같은 명령을 냅니다. v2는 카메라 상태 확인 및 패널 인식 이후 감속 분기·영상 정렬·5초 중앙 유지만 추가합니다.
+
+**새 공통 패키지를 함께 빌드해야 합니다.** 기존 실행/서비스 이름은 유지됩니다. 세부 비교·기존 v2 설정 키/상태 이름 변경·코어 동일성 확인은 [shared_flight_logic.md](docs/shared_flight_logic.md)를 읽으세요.
+
 ## 내려받은 드론 컴퓨터의 Codex에게
 
 현재 준비 작업은 **다운로드 → 기존 환경 조사 → 설정·연결 → 빌드 → 비행 없는 검증 → 미확인 항목 보고**입니다. 준비 중 실제 FC setpoint, OFFBOARD, arming, 분사를 실행하지 마세요. 비행은 현장 확인 후 사용자의 별도 실행 지시에 따라 수행합니다.
@@ -59,7 +65,7 @@ ros2 service list
 
 ### 3. 무엇을 어디에 설정할지
 
-YAML 디렉터리는 `ros2_ws/src/we_meet_flight_v1/config/`입니다. 두 프로필은 독립 파일입니다. 생략한 값은 `we_meet_flight_v1/config.py` 기본값이 적용되며, 실제 로드 결과는 실행별 `config_snapshot.yaml`에 기록됩니다.
+YAML 디렉터리는 `ros2_ws/src/we_meet_flight_v1/config/`입니다. 두 프로필은 독립 파일입니다. 생략한 값은 `we_meet_flight_core/config.py` 공통 기본값이 적용되며, 실제 로드 결과는 실행별 `config_snapshot.yaml`에 기록됩니다.
 
 | 설정 위치 | 이름·기본값 | 확인/설정할 내용 |
 |---|---|---|
@@ -118,7 +124,7 @@ Codex는 적용한 설정·근거, 실제 repository/ROS/container 경로, 센�
 sudo apt-get install python3-yaml ros-jazzy-mavros-msgs
 cd we-meet-project/ros2_ws
 source /opt/ros/jazzy/setup.bash
-colcon build --symlink-install --packages-select we_meet_flight_v1
+colcon build --symlink-install --packages-select we_meet_flight_core we_meet_flight_v1
 source install/setup.bash
 ```
 
@@ -128,6 +134,7 @@ source install/setup.bash
 
 ```bash
 python3 -m pip install -r requirements-test.txt
+python3 tools/verify_shared_core.py
 python3 -m unittest discover -s tests -v
 python3 tools/offline_demo.py --output /tmp/v1_trial.jsonl
 python3 tools/offline_demo.py --ascent-only
@@ -218,3 +225,5 @@ python3 tools/replay_commands.py ~/flight_logs/test_flying_v1/<run_id>/commands.
 ## 변경 기록
 
 - 2026-10-02: v1 전용 카메라 없는 속도/yaw 시험 구현. 상승 단독/약 5m 프로필, 실제 publish 시각 기반 명령 적분, 감속·5초 정지명령·LAND 인계, 자동 로그·사후 적분·무비행 테스트와 드론 Codex 적용 안내 추가.
+
+- 2026-10-02: v1/v2 공통 제어를 we_meet_flight_core 0.2.0으로 통일. actual publish 적분·raw 라이다 기본값·안정/중단 조건·LAND 인계 공유. v2 카메라 hook, 명령 일치 검증 및 설정 이전 안내 추가.

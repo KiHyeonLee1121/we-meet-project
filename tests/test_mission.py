@@ -6,13 +6,13 @@ import random
 import sys
 import tempfile
 import unittest
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'ros2_ws/src/we_meet_flight_v1'))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'ros2_ws/src/we_meet_flight_core'))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'tools'))
-from we_meet_flight_v1.config import Config, load_config
-from we_meet_flight_v1.control import body_to_enu, quaternion_yaw, yaw_rate_command, yaw_reset_innovation
-from we_meet_flight_v1.journal import Journal
-from we_meet_flight_v1.mission import Command, Mission, Sensors
-from offline_demo import run_demo
+from we_meet_flight_core.config import Config, load_config
+from we_meet_flight_core.control import body_to_enu, quaternion_yaw, yaw_rate_command, yaw_reset_innovation
+from we_meet_flight_core.journal import Journal
+from we_meet_flight_core.mission import Command, Mission, Sensors
+from core_offline_demo import run_demo
 from replay_commands import replay
 
 
@@ -218,7 +218,7 @@ class MissionTests(unittest.TestCase):
 
 class ConfigAndLogTests(unittest.TestCase):
     def test_configs_and_invalid_parameters(self):
-        directory = Path(__file__).resolve().parents[1]/'ros2_ws/src/we_meet_flight_v1/config'
+        directory = Path(__file__).resolve().parents[1]/'ros2_ws/src/we_meet_flight_core/config'
         self.assertTrue(load_config(directory/'velocity_trial.yaml').advance_enabled)
         self.assertFalse(load_config(directory/'ascent_only.yaml').advance_enabled)
         self.assertFalse(Config().lidar_input_is_vertical_height)

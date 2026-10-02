@@ -9,9 +9,9 @@ import time
 from types import ModuleType, SimpleNamespace as NS
 import unittest
 from unittest.mock import Mock, patch
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'ros2_ws/src/we_meet_flight_v1'))
-from we_meet_flight_v1.config import Config
-from we_meet_flight_v1.mission import Command, Mission, Sensors
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'ros2_ws/src/we_meet_flight_core'))
+from we_meet_flight_core.config import Config
+from we_meet_flight_core.mission import Command, Mission, Sensors
 
 
 class TwistDouble:
@@ -40,7 +40,7 @@ def load_adapter():
     modules['geometry_msgs.msg'].TwistStamped = TwistDouble
     modules['std_msgs.msg'].String = lambda **kwargs: NS(**kwargs)
     with patch.dict(sys.modules, modules):
-        return importlib.import_module('we_meet_flight_v1.node')
+        return importlib.import_module('we_meet_flight_core.node')
 
 
 adapter = load_adapter()

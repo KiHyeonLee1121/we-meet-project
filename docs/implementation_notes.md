@@ -36,3 +36,7 @@ ROS 2/DDS/MAVROS·실제 Pi/라이다/FC에 접속해 검증하지 않았습니�
 heading reset은 pose yaw 변화에서 IMU 기반 회전을 뺀 innovation으로 감지합니다. 모든 EKF reset counter를 직접 관측하는 방식이 아니며 시간 정렬/임계값을 현장에서 검증해야 합니다. State.system_status의 critical/emergency 표시는 전체 PX4 failsafe 상태가 아닙니다. ULog에서 이를 보완해야 합니다.
 
 LAND가 실제로 관측되면 setpoint를 완전히 끊습니다. 중단 후 속도 추정이 무효이거나 publish/frame/제어권에 문제가 있으면 zero stream이 안전하다고 가정하지 않습니다. LAND 거부/통신 상실/프로세스 종료 이후의 회수는 기체에 이미 적용되고 현장에서 검증된 FC 정책에 의존합니다.
+
+## 공통 로직 통일 (0.2.0)
+
+현재 제어는 [shared_flight_logic.md](shared_flight_logic.md)의 동일한 공통 패키지를 사용합니다. 기존 v2의 timer 평가 시각 적분을 actual publish 시각 적분으로 바꿨고, raw 라이다 기본(false), rate 창 0.5초, 상승 안정 ±0.10m/±0.05m/s, 단계 제한시간과 critical/중단/LAND stream latch를 v1 기준으로 통일했습니다. 영상 검출기·target lock·이미지 변환과 현장 교정 요구는 유지합니다. 기존 속도명령 시험보다 실기체 정확도가 향상됐다는 주장은 하지 않습니다.
