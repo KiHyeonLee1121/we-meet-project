@@ -19,7 +19,20 @@ from replay_commands import replay
 def healthy():
     return Sensors(connected=True, mode='POSCTL', landed=True, state_age=0, landed_age=0,
                    estimator_valid=True, estimator_age=0, yaw=0, yaw_age=0, imu_age=0,
-                   height_m=3, height_rate_mps=0, range_age=0, battery_remaining=0.8, battery_age=0)
+                   height_m=3, height_rate_mps=0, range_age=0, battery_remaining=0.8, battery_age=0,
+                   odometry_age=0, odometry_stamp_s=0, fc_reset_counter=2,
+                   position_enu=(0, 0, 0), velocity_enu=(0, 0, 0), position_sigma_m=0.1,
+                   velocity_sigma_mps=0.05, gps_age=0, gps_sigma_m=0.2, yaw_rate_rps=0)
+
+
+def follow_command(s, m, now):
+    """Ideal synthetic estimator for legacy controller tests, never used live."""
+    old = m.last_published_command or Command()
+    dt = now-m.last_publish if m.last_publish is not None else 0
+    s.position_enu = (m.launch_xy[0]+m.expected_xy[0]+old.vx*dt,
+                      m.launch_xy[1]+m.expected_xy[1]+old.vy*dt, 0)
+    s.velocity_enu = (old.vx, old.vy, s.height_rate_mps)
+    s.odometry_stamp_s = now
 
 
 class Harness:
@@ -31,6 +44,7 @@ class Harness:
 
     def tick(self, dt=0.05, publish=True, automatic=True):
         self.now += dt
+        follow_command(self.s, self.m, self.now)
         cmd = self.m.step(self.now, self.s)
         if cmd.publish and publish:
             self.m.record_publish(cmd, self.now)
@@ -181,14 +195,18 @@ class MissionTests(unittest.TestCase):
         h.to_state('LANDING')
         self.assertIn('phase timeout', h.m.reason)
 
-    def test_hold_timer_is_zero_publication_time_not_xy_feedback(self):
+    def test_height_excursion_restarts_continuous_five_second_hold(self):
         h = Harness(); h.to_state('ZERO_VELOCITY_HOLD')
         start = h.m.hold_since
         self.assertIsNotNone(start)
-        h.s.height_m = 3.2  # valid but outside settle tolerance; does not use XY motion.
+        h.s.height_m = 3.2
+        for _ in range(20): h.tick()
+        self.assertIsNone(h.m.hold_since)
+        h.s.height_m = 3
+        h.tick()
+        self.assertGreater(h.m.hold_since, start)
         for _ in range(80): h.tick()
-        self.assertEqual(h.m.hold_since, start)
-        self.assertNotIn('xy', asdict(h.s))
+        self.assertEqual(h.m.state, 'ZERO_VELOCITY_HOLD')
         h.to_state('LANDING')
         self.assertTrue(h.m.zero_hold_completed)
 

@@ -5,3 +5,25 @@ zero_velocity_hold_s: 5.0
 lidar_input_is_vertical_height: false
 lidar_body_down_offset_m: 0.0
 maximum_tilt_rad: 0.35
+
+# 2026-10-02 failure guards: provisional limits, NOT measured aircraft specs.
+# FC ODOMETRY(331) at 20 Hz over the existing MAVROS MAVLink-v2 link is required.
+fc_odometry_timeout_s: 0.3
+maximum_position_sigma_m: 0.5
+maximum_velocity_sigma_mps: 0.2
+gps_accuracy_required: true
+gps_timeout_s: 2.0
+maximum_gps_sigma_m: 0.5
+horizontal_tracking_limit_m: 1.0
+horizontal_tracking_dwell_s: 0.5
+position_velocity_residual_limit_m: 0.5
+position_velocity_window_s: 1.0
+yaw_abort_error_rad: 0.261799388   # 15 degrees
+yaw_abort_rate_rad_s: 0.610865238 # 35 degrees/s
+yaw_abort_dwell_s: 0.5
+# Only valid over the same fixed, flat reflecting surface; verify on Pi.
+lidar_velocity_check_enabled: true
+lidar_velocity_disagreement_mps: 0.25
+lidar_velocity_disagreement_s: 0.75
+hold_horizontal_speed_mps: 0.15
+hold_vertical_speed_mps: 0.10

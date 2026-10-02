@@ -121,7 +121,11 @@ class Journal:
                        'estimated_displacement_interval': 'advance start to last BRAKE/zero-velocity-hold sample; excludes visual alignment and LAND',
                        'maximum_height_error_m_including_ascent': self.max_height_error,
                        'maximum_height_error_m_after_ascent': self.max_height_error_after_ascent,
-                       'landing_confirmed': last.get('state') == 'COMPLETE'}
+                       'landing_confirmed': last.get('state') == 'COMPLETE',
+                       'final_observed_fc_mode': last.get('sensors', {}).get('mode'),
+                       'final_observed_armed': last.get('sensors', {}).get('armed'),
+                       'mode_request_is_observed_mode': False,
+                       'last_guard_diagnostics': last.get('guard_diagnostics', {})}
             try:
                 (self.directory/'summary.json').write_text(json.dumps(json_safe(summary), indent=2, allow_nan=False))
             except Exception as exc:
