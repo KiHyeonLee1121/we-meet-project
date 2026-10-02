@@ -1,12 +1,27 @@
-# Conservative reconstructed trial; source logs are NOT calibration of this speed.
-vision_enabled: true
-target_range_m: 3.0
-approach_distance_m: 5.0
-cruise_speed_mps: 0.35
+# Shared v1/v2 command-based trial settings; camera starts only after acquisition.
+advance_enabled: true
+target_height_m: 3.0
+commanded_target_distance_m: 5.0
+commanded_distance_tolerance_m: 0.15
+forward_speed_mps: 0.35
 horizontal_accel_mps2: 0.25
-hover_s: 5.0
+zero_velocity_hold_s: 5.0
+control_hz: 20.0
+# Preserved yaw helper and existing distance-controller gains.
 yaw_kp: 1.0
 yaw_max_rate_rad_s: 0.35
+vertical_kp: 0.6
+vertical_kd: 0.15
+vertical_speed_mps: 0.25
+vertical_accel_mps2: 0.5
+# The source distance_filter only smooths raw slant range; it does NOT tilt-correct.
+lidar_input_is_vertical_height: false
+# Placeholder: measure body reference -> sensor downward offset before live trial.
+lidar_body_down_offset_m: 0.0
+maximum_tilt_rad: 0.35
+lidar_rate_window_s: 0.5
+
+vision_enabled: true
 # Central 30% of the image in each direction (centre +/- 15%).
 center_half_width: 0.15
 center_half_height: 0.15
@@ -22,9 +37,3 @@ max_panel_aspect: 3.5
 panel_dark_threshold: 130
 min_panel_dark_fraction: 0.55
 acquisition_frames: 3
-
-# Confirm the input driver actually returns corrected vertical height.
-# If it only filters raw slant distance, set false and measure the offset.
-lidar_input_is_vertical_height: true
-lidar_body_down_offset_m: 0.0
-maximum_tilt_rad: 0.35

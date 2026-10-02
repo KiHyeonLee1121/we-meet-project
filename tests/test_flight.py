@@ -1,33 +1,29 @@
-from dataclasses import replace
+from dataclasses import asdict, fields, replace
 import math
 from pathlib import Path
 import sys
 import tempfile
 import unittest
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'ros2_ws/src/we_meet_flight'))
+for package in ['we_meet_flight', 'we_meet_flight_core']:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'ros2_ws/src'/package))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'tools'))
 import cv2
 import numpy as np
+from we_meet_flight_core.config import Config as CoreConfig
+from we_meet_flight_core.mission import Mission as CoreMission, Sensors as CoreSensors
 from we_meet_flight.config import Config, load_config
-from we_meet_flight.control import body_to_enu, yaw_rate_command, yaw_reset_innovation
 from we_meet_flight.image_io import image_to_bgr
-from we_meet_flight.mission import Command, Mission, Sensors
+from we_meet_flight.mission import Mission, Sensors
 from we_meet_flight.vision import Detection, Observation, PanelDetector, TargetTracker
 from offline_demo import run_demo
-
-
-def healthy(vision=False):
-    return Sensors(estimator_valid=True, estimator_age=0, connected=True, armed=False, mode='POSCTL', landed=True,
-                   state_age=0, landed_age=0, yaw=0, yaw_age=0, imu_age=0,
-                   range_m=3, range_rate=0, range_age=0,
-                   battery_remaining=0.8, battery_age=0, camera_age=0)
+from test_mission import healthy
 
 
 class Harness:
-    def __init__(self, vision=False):
+    def __init__(self, vision=True):
         self.c = Config(vision_enabled=vision)
-        self.m, self.s = Mission(self.c), healthy(vision)
-        self.now = 0
+        self.m, self.s = Mission(self.c), Sensors(**asdict(healthy()), camera_age=0)
+        self.now = 0.0
         self.m.start(0, self.s, 0)
 
     def tick(self, dt=0.05, visible=None, ex=0, ey=0, publish=True):
@@ -35,222 +31,192 @@ class Harness:
         if visible is not None:
             self.s.observation = Observation(self.now, round(self.now*100), visible, ex, ey, 0.1, 0.9, 1)
         cmd = self.m.step(self.now, self.s)
-        self.m.acknowledge_published(publish and cmd.publish)
+        if publish and cmd.publish:
+            self.m.record_publish(cmd, self.now)
         if cmd.request == 'OFFBOARD':
             self.s.mode = 'OFFBOARD'
         elif cmd.request == 'ARM':
-            self.s.armed = True
-            self.s.landed = False
+            self.s.armed, self.s.landed = True, False
         return cmd
 
     def to_state(self, state, **kwargs):
-        for _ in range(2000):
+        for _ in range(3000):
             if self.m.state == state:
                 return
             self.tick(**kwargs)
-        raise AssertionError(f'did not reach {state}: {self.m.state}, {self.m.reason}')
+        raise AssertionError((state, self.m.state, self.m.reason))
 
 
-class FlightTests(unittest.TestCase):
+class CommonLogicParityTests(unittest.TestCase):
+    def test_all_shared_defaults_and_profiles_match(self):
+        base, visual = CoreConfig(), Config()
+        for field in fields(CoreConfig):
+            self.assertEqual(getattr(base, field.name), getattr(visual, field.name), field.name)
+        directory = Path(__file__).resolve().parents[1]/'ros2_ws/src'
+        import we_meet_flight_core.config as core_config
+        reference = core_config.load_config(directory/'we_meet_flight_core/config/velocity_trial.yaml')
+        for profile in ['baseline.yaml', 'panel_approach.yaml']:
+            loaded = load_config(directory/'we_meet_flight/config'/profile)
+            for field in fields(CoreConfig):
+                self.assertEqual(getattr(reference, field.name), getattr(loaded, field.name), (profile, field.name))
 
-    def test_estimator_loss_does_not_stream_zero_as_safe_hold(self):
-        h = Harness()
-        h.to_state('CRUISE')
-        h.s.estimator_valid = False
-        cmd = h.tick()
-        self.assertEqual(cmd.request, 'LAND')
-        self.assertFalse(cmd.publish)
-        self.assertEqual(h.m.result, 'aborted')
+    def compare_commands(self, vision):
+        # Independent controller instances see identical sensor history and dispatch times.
+        core = CoreMission(CoreConfig())
+        s = healthy()
+        visual = Harness(vision=vision)
+        core.start(0, s, 0)
+        periods = [0.03, 0.08, 0.05, 0.10, 0.04]
+        states = set()
+        for i in range(2000):
+            s.yaw = visual.s.yaw = 0.015*math.sin(i/11)
+            s.height_m = visual.s.height_m = 2.8 if i < 80 else 3.0
+            a = visual.tick(dt=periods[i % len(periods)], visible=False)
+            b = core.step(visual.now, s)
+            # Camera-enabled no-target flight intentionally fails after common BRAKE.
+            if vision and core.state == 'ZERO_VELOCITY_HOLD':
+                self.assertEqual(visual.m.state, 'LANDING')
+                break
+            self.assertEqual(a, b, (i, visual.m.state, core.state))
+            self.assertEqual(visual.m.state, core.state)
+            if b.publish:
+                core.record_publish(b, visual.now)
+            self.assertEqual(visual.m.commanded_distance_m, core.commanded_distance_m)
+            states.add(core.state)
+            if b.request == 'OFFBOARD':
+                s.mode = 'OFFBOARD'
+            elif b.request == 'ARM':
+                s.armed, s.landed = True, False
+            elif b.request == 'LAND':
+                s.mode = visual.s.mode = 'AUTO.LAND'
+            if core.state == 'LANDING' and not vision:
+                s.landed = visual.s.landed = True
+                s.armed = visual.s.armed = False
+            if core.state == 'COMPLETE':
+                break
+        self.assertTrue({'PRESTREAM', 'OFFBOARD_WAIT', 'ARM_WAIT', 'ASCEND', 'SETTLE', 'ADVANCE', 'BRAKE'} <= states)
+        self.assertEqual(core.yaw_ref, visual.m.yaw_ref)
 
-    def test_ascent_only_has_no_forward_command(self):
-        h = Harness()
-        h.m.c = replace(h.c, approach_enabled=False)
-        h.to_state('HOLD')
-        self.assertEqual(h.m.commanded_distance_m, 0)
-        self.assertEqual(h.m.xy, (0, 0))
-        h.to_state('LANDING')
+    def test_camera_disabled_entire_trial_matches_core(self):
+        self.compare_commands(False)
 
-    def test_signed_integration_and_irregular_clock(self):
-        h = Harness()
-        h.to_state('CRUISE')
-        total = 0
-        for dt in [0.03, 0.08, 0.04, 0.12, 0.05]*20:
-            previous = h.m.last_command
-            count = h.m.integrate_previous and h.m.last_published
-            h.tick(dt=dt)
-            if count:
-                total += previous.vx*dt
-        self.assertAlmostEqual(h.m.commanded_distance_m, total)
-        h.m.last_command = Command(-0.1, 0, 0, 0, True)
-        h.m.last_published = h.m.integrate_previous = True
-        before = h.m.commanded_distance_m
-        h.tick()
-        self.assertAlmostEqual(h.m.commanded_distance_m, before-0.005)
+    def test_camera_enabled_no_panel_matches_until_end_of_braking(self):
+        self.compare_commands(True)
 
-    def test_per_run_logs_and_replay(self):
-        import json
-        from we_meet_flight.journal import Journal
-        from replay_commands import replay
-        with tempfile.TemporaryDirectory() as root:
-            journal = Journal(root, {'config': {'hover_s': 5.0}})
-            for i in range(3):
-                journal.append({'kind': 'control', 'time_s': 10+i*0.05, 'dt_s': 0.05,
-                    'state': 'CRUISE', 'result': 'pending', 'reason': '',
-                    'command': {'vx': 0.2, 'vy': 0, 'vz': 0, 'yaw_rate': 0},
-                    'sensors': {'mode': 'OFFBOARD', 'armed': True, 'range_m': 3, 'yaw': 0},
-                    'telemetry': {}, 'commanded_distance_m': i*0.01, 'published': True,
-                    'yaw_ref': 0, 'integrate_distance': True})
-            journal.close()
-            self.assertFalse(journal.error)
-            for name in ['run_metadata.json', 'config_snapshot.yaml', 'telemetry.csv',
-                         'commands.jsonl', 'events.jsonl', 'summary.json', 'console.log', 'field_result.md']:
-                self.assertTrue((journal.directory/name).exists())
-            result = replay(journal.directory/'commands.jsonl')
-            self.assertAlmostEqual(result['recomputed_commanded_distance_m'], 0.02)
-            self.assertEqual(json.loads((journal.directory/'summary.json').read_text())['state'], 'CRUISE')
+    def test_dispatch_latency_integrals_match(self):
+        a, b = CoreMission(CoreConfig()), Mission(Config(vision_enabled=False))
+        sa, sb = healthy(), Sensors(**asdict(healthy()))
+        a.start(0, sa, 0); b.start(0, sb, 0)
+        now = 0
+        for i in range(1200):
+            now += [0.03, 0.08, 0.05, 0.10, 0.04][i % 5]
+            ca, cb = a.step(now, sa), b.step(now, sb)
+            self.assertEqual(ca, cb)
+            if ca.publish:
+                dispatch = now+[0.001, 0.006, 0.012][i % 3]
+                self.assertEqual(a.record_publish(ca, dispatch), b.record_publish(cb, dispatch))
+            for sensor in [sa, sb]:
+                if ca.request == 'OFFBOARD': sensor.mode = 'OFFBOARD'
+                if ca.request == 'ARM': sensor.armed, sensor.landed = True, False
+                if ca.request == 'LAND': sensor.mode = 'AUTO.LAND'
+            if a.state == 'LANDING': break
+        self.assertEqual(a.result, 'expected_5m_zero_command_5s')
+        self.assertEqual(a.commanded_distance_m, b.commanded_distance_m)
 
-    def test_full_baseline_command_budget_and_hover(self):
-        h = Harness()
-        h.to_state('HOLD')
-        self.assertLess(abs(h.m.commanded_distance_m-5), 0.025)
-        self.assertIsNone(h.m.hold_since)
-        h.tick()
-        start = h.m.hold_since
-        h.to_state('LANDING')
-        self.assertGreaterEqual(h.now-start, 5)
-        self.assertEqual(h.m.result, 'command_distance_hover_5s')
 
-    def test_no_distance_for_unpublished_commands(self):
-        h = Harness()
-        h.to_state('CRUISE')
-        for _ in range(10):
-            h.tick(publish=False)
-        self.assertEqual(h.m.commanded_distance_m, 0)
-
-    def test_long_timer_gap_aborts_without_integrating_gap(self):
-        h = Harness()
-        h.to_state('CRUISE')
-        for _ in range(20):
-            h.tick()
-        before = h.m.commanded_distance_m
-        cmd = h.tick(dt=1)
-        self.assertEqual(h.m.state, 'LANDING')
-        self.assertEqual(cmd.request, 'LAND')
-        self.assertEqual(h.m.commanded_distance_m, before)
-        self.assertEqual((cmd.vx, cmd.vy, cmd.vz), (0, 0, 0))
-
-    def test_yaw_hold_in_every_offboard_stage_and_fixed_reference(self):
-        h = Harness()
-        h.s.yaw = 0.02
-        for _ in range(80):
-            cmd = h.tick()
-            self.assertAlmostEqual(cmd.yaw_rate, -0.02)
-            self.assertEqual(h.m.yaw_ref, 0)
-        h.to_state('CRUISE')
-        cmd = h.tick()
-        self.assertAlmostEqual(cmd.vy, 0)
-
-    def test_takeover_never_reenters_or_requests_land(self):
-        h = Harness()
-        h.to_state('CRUISE')
-        h.s.mode = 'POSCTL'
-        cmd = h.tick()
-        self.assertEqual(h.m.state, 'RELEASED')
-        self.assertFalse(cmd.publish)
-        for _ in range(100):
-            cmd = h.tick()
-            self.assertFalse(cmd.publish)
-            self.assertFalse(cmd.request)
-
-    def test_external_land_stops_publishing(self):
-        h = Harness()
-        h.to_state('HOLD')
-        h.to_state('LANDING')
-        h.s.mode = 'AUTO.LAND'
-        self.assertFalse(h.tick().publish)
-        h.s.landed, h.s.armed = True, False
-        h.tick()
-        self.assertEqual(h.m.state, 'DONE')
-
-    def test_stale_yaw_lidar_camera_and_reset_abort(self):
-        for field, value in [('yaw_age', 1), ('range_age', 1), ('camera_age', 1),
-                             ('yaw_reset', True), ('yaw', math.nan), ('range_m', math.inf),
-                             ('battery_remaining', 0.01)]:
-            with self.subTest(field=field):
-                h = Harness(vision=True)
-                h.to_state('CRUISE')
-                setattr(h.s, field, value)
-                cmd = h.tick()
-                self.assertEqual(h.m.state, 'LANDING')
-                self.assertEqual(cmd.vx, 0)
-
+class CameraFlightTests(unittest.TestCase):
     def test_panel_acquisition_smoothly_brakes_then_aligns(self):
-        h = Harness(vision=True)
-        h.to_state('CRUISE')
-        for _ in range(50):
-            before = h.m.xy
-            cmd = h.tick()
-            self.assertLessEqual(math.hypot(cmd.vx-before[0], cmd.vy-before[1]), 0.01250001)
+        h = Harness(); h.to_state('ADVANCE')
+        for _ in range(50): h.tick()
         before = h.m.xy
-        cmd = h.tick(visible=True, ey=-0.3)
+        cmd = h.tick(visible=True, ey=-0.4)
         self.assertEqual(h.m.state, 'BRAKE')
-        self.assertLess(cmd.vx, before[0])
         self.assertGreater(cmd.vx, 0)
-        h.to_state('ALIGN', visible=True, ey=-0.3)
-        for _ in range(5):
-            cmd = h.tick(visible=True, ey=-0.3)
+        self.assertLess(cmd.vx, before[0])
+        while h.m.state == 'BRAKE':
+            before = h.m.xy
+            cmd = h.tick(visible=True, ey=-0.4)
+            self.assertLessEqual(math.hypot(cmd.vx-before[0], cmd.vy-before[1]), 0.01250001)
+        self.assertEqual(h.m.state, 'ALIGN')
+        for _ in range(20): cmd = h.tick(visible=True, ey=-0.4)
         self.assertGreater(cmd.vx, 0)
         self.assertLessEqual(math.hypot(cmd.vx, cmd.vy), 0.12)
 
-    def test_vision_uses_current_body_yaw(self):
-        h = Harness(vision=True)
-        h.to_state('CRUISE')
+    def test_alignment_uses_current_body_yaw_but_reference_stays_fixed(self):
+        h = Harness(); h.to_state('ADVANCE')
         h.to_state('ALIGN', visible=True, ey=-0.3)
         h.s.yaw = 0.05
-        for _ in range(20):
-            cmd = h.tick(visible=True, ey=-0.3)
+        for _ in range(20): cmd = h.tick(visible=True, ey=-0.3)
         self.assertAlmostEqual(cmd.vy/cmd.vx, math.tan(0.05))
         self.assertEqual(h.m.yaw_ref, 0)
 
-    def test_hover_requires_continuous_fresh_centered_target(self):
-        h = Harness(vision=True)
-        h.to_state('CRUISE')
-        h.to_state('HOLD', visible=True)
-        for _ in range(50):
-            h.tick(visible=True)
-        h.tick(visible=True, ex=0.25)
-        self.assertEqual(h.m.state, 'ALIGN')
-        self.assertIsNone(h.m.hold_since)
-        h.to_state('HOLD', visible=True)
-        for _ in range(90):
-            h.tick(visible=True)
-        self.assertNotEqual(h.m.state, 'LANDING')
-        h.to_state('LANDING', visible=True)
-        self.assertEqual(h.m.result, 'panel_centered_5s')
+    def test_hold_requires_continuous_fresh_center_height_and_heading(self):
+        for field, value in [('center', 0.25), ('height_m', 3.2), ('yaw', 0.15), ('visible', False)]:
+            with self.subTest(field=field):
+                h = Harness(); h.to_state('ADVANCE'); h.to_state('VISUAL_HOLD', visible=True)
+                for _ in range(50): h.tick(visible=True)
+                if field == 'center': h.tick(visible=True, ex=value)
+                elif field == 'visible': h.tick(visible=False)
+                else:
+                    setattr(h.s, field, value); h.tick(visible=True); setattr(h.s, field, 3 if field == 'height_m' else 0)
+                self.assertIsNone(h.m.hold_since)
+                for _ in range(90): h.tick(visible=True)
+                self.assertNotEqual(h.m.state, 'LANDING')
+                h.to_state('LANDING', visible=True)
+                self.assertEqual(h.m.result, 'panel_centered_5s')
 
-    def test_target_loss_stops_and_aborts_without_forward_resume(self):
-        h = Harness(vision=True)
-        h.to_state('CRUISE')
-        h.to_state('ALIGN', visible=True, ey=-0.3)
-        for _ in range(10):
-            h.tick(visible=True, ey=-0.3)
-        h.tick(visible=False)
-        h.to_state('LANDING', visible=False)
+    def test_hold_starts_at_actual_zero_publication(self):
+        h = Harness(); h.to_state('ADVANCE'); h.to_state('ALIGN', visible=True, ey=-0.4)
+        for _ in range(30): h.tick(visible=True, ey=-0.4)
+        h.tick(visible=True, publish=False)
+        self.assertIsNone(h.m.hold_since)
+        while math.hypot(*h.m.xy) > 0:
+            h.tick(visible=True, publish=False)
+        self.assertIsNone(h.m.hold_since)
+        # Manually record zero publication with real dispatch latency.
+        cmd = h.tick(visible=True, publish=False)
+        h.m.record_publish(cmd, h.now+0.01)
+        self.assertAlmostEqual(h.m.hold_since, h.now+0.01)
+
+    def test_locked_panel_loss_during_braking_never_resumes_forward(self):
+        h = Harness(); h.to_state('ADVANCE')
+        for _ in range(30): h.tick()
+        h.tick(visible=True, ey=-0.3)
+        last = h.m.speed
+        for _ in range(20):
+            cmd = h.tick(visible=False)
+            self.assertLessEqual(math.hypot(cmd.vx, cmd.vy), last+1e-12)
+            last = math.hypot(cmd.vx, cmd.vy)
+            if h.m.state == 'LANDING': break
         self.assertEqual(h.m.result, 'aborted')
         self.assertIn('lost', h.m.reason)
-        self.assertEqual(h.m.xy, (0, 0))
 
-    def test_no_panel_at_budget_is_failure(self):
-        h = Harness(vision=True)
-        h.to_state('LANDING')
+    def test_target_loss_alignment_and_stale_camera_abort(self):
+        for fault in ['loss', 'camera', 'estimator', 'critical']:
+            h = Harness(); h.to_state('ADVANCE'); h.to_state('ALIGN', visible=True, ey=-0.3)
+            if fault == 'camera': h.s.camera_age = 1
+            if fault == 'estimator': h.s.estimator_valid = False
+            if fault == 'critical': h.s.failsafe_observed = True
+            h.to_state('LANDING' if fault != 'critical' else 'RELEASED', visible=False)
+            self.assertEqual(h.m.result, 'aborted')
+            if fault == 'estimator': self.assertFalse(h.m.landing_stream_allowed)
+
+    def test_no_panel_at_distance_budget_is_failure(self):
+        h = Harness(); h.to_state('LANDING', visible=False)
         self.assertEqual(h.m.result, 'aborted')
-        self.assertLess(abs(h.m.commanded_distance_m-5), 0.025)
+        self.assertLess(abs(h.m.commanded_distance_m-5), 0.15)
 
-    def test_synthetic_camera_closed_loop_end_to_end(self):
-        result = run_demo(None)
-        self.assertEqual(result['state'], 'DONE')
-        self.assertEqual(result['result'], 'panel_centered_5s')
-        self.assertIn('BRAKE->ALIGN', result['transitions'])
+    def test_visual_phase_timeout_uses_common_abort(self):
+        h = Harness(); h.to_state('ADVANCE'); h.to_state('ALIGN', visible=True, ey=-0.4)
+        h.m.entered_s = h.now-h.c.align_timeout_s
+        self.assertEqual(h.tick(visible=True, ey=-0.4).request, 'LAND')
+        self.assertIn('ALIGN phase timeout', h.m.reason)
+
+    def test_opencv_closed_loop_and_baseline_end_to_end(self):
+        for vision, expected in [(True, 'panel_centered_5s'), (False, 'expected_5m_zero_command_5s')]:
+            result = run_demo(None, vision=vision)
+            self.assertEqual(result['state'], 'COMPLETE')
+            self.assertEqual(result['result'], expected)
 
 
 class VisionTests(unittest.TestCase):
@@ -295,20 +261,21 @@ class VisionTests(unittest.TestCase):
             image_to_bgr(msg)
 
 
+
 class ConfigurationTests(unittest.TestCase):
     def test_invalid_configs_rejected(self):
-        for kwargs in [{'hover_s': math.nan}, {'horizontal_accel_mps2': 0},
+        for kwargs in [{'zero_velocity_hold_s': math.nan}, {'horizontal_accel_mps2': 0},
                        {'image_to_body': [[1, 0], [1, 0]]}, {'vision_enabled': 'false'},
-                       {'min_panel_area_fraction': 0.9}, {'acquisition_frames': 2.5}]:
-            with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
-                Config(**kwargs)
-        root = Path(__file__).resolve().parents[1]/'ros2_ws/src/we_meet_flight/config'
-        self.assertFalse(load_config(root/'baseline.yaml').vision_enabled)
-        self.assertTrue(load_config(root/'panel_approach.yaml').vision_enabled)
+                       {'min_panel_area_fraction': 0.9}, {'acquisition_frames': 2.5},
+                       {'visual_hold_timeout_s': 4}, {'vision_enabled': True, 'advance_enabled': False}]:
+            with self.subTest(kwargs=kwargs), self.assertRaises(ValueError): Config(**kwargs)
 
-    def test_yaw_wrap_and_physical_motion_vs_reset(self):
-        self.assertAlmostEqual(yaw_rate_command(target_rad=-math.pi+0.02, current_rad=math.pi-0.02,
-                                               kp=1, maximum_rate_rad_s=0.35), 0.04)
-        self.assertEqual(yaw_rate_command(target_rad=2, current_rad=0, kp=1, maximum_rate_rad_s=0.35), 0.35)
-        self.assertAlmostEqual(yaw_reset_innovation(0, 0.02, 0.2, 0.1), 0)
-        self.assertGreater(yaw_reset_innovation(0, 0.12, 0, 0.1), 0.1)
+    def test_legacy_yaml_preserves_values_and_rejects_conflicts(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp)/'old.yaml'
+            path.write_text('target_range_m: 2.8\napproach_distance_m: 4.9\ncruise_speed_mps: 0.3\nhover_s: 6.0\nlidar_input_is_vertical_height: true\n')
+            config = load_config(path)
+            self.assertEqual((config.target_height_m, config.commanded_target_distance_m, config.forward_speed_mps, config.zero_velocity_hold_s), (2.8, 4.9, 0.3, 6.0))
+            self.assertTrue(config.lidar_input_is_vertical_height)
+            path.write_text('target_range_m: 2.8\ntarget_height_m: 3.0\n')
+            with self.assertRaises(ValueError): load_config(path)

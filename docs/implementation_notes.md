@@ -38,3 +38,7 @@ heading reset 카운터를 MAVROS에서 직접 구독하지 못하므로 pose ya
 
 
 추가 검증: FC EstimatorStatus의 attitude/XY velocity/Z velocity 유효성·stale 검사를 별도로 적용했습니다. 위치/GPS 좌표는 거리 피드백에 사용하지 않습니다. 추정기 무효 시 LAND를 요청할 수 있지만 zero velocity로 안전 정지가 보장된다고 가정해 stream을 유지하지 않습니다. 라이다 수직높이 선보정 입력과 raw body-down 입력을 구분하고, raw인 경우 장착 오프셋·roll/pitch 투영을 한 번만 적용합니다. 입력 max_range가 목표 3m를 지원하지 않으면 차단합니다. 실제 지면/패널 높이 변화와 장착 보정은 현장 확인이 필요합니다.
+
+## 공통 로직 통일 (0.2.0)
+
+현재 제어는 [shared_flight_logic.md](shared_flight_logic.md)의 동일한 공통 패키지를 사용합니다. 기존 v2의 timer 평가 시각 적분을 actual publish 시각 적분으로 바꿨고, raw 라이다 기본(false), rate 창 0.5초, 상승 안정 ±0.10m/±0.05m/s, 단계 제한시간과 critical/중단/LAND stream latch를 v1 기준으로 통일했습니다. 영상 검출기·target lock·이미지 변환과 현장 교정 요구는 유지합니다. 기존 속도명령 시험보다 실기체 정확도가 향상됐다는 주장은 하지 않습니다.

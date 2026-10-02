@@ -9,5 +9,10 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install -r requirements-test.txt
+      - run: python tools/verify_shared_core.py
       - run: python -m unittest discover -s tests -v
       - run: python tools/offline_demo.py --output /tmp/flight-demo.jsonl
+      - run: python tools/offline_demo.py --baseline
+      - run: python tools/core_offline_demo.py --irregular
+      - run: python tools/core_offline_demo.py --ascent-only
+      - run: python tools/replay_commands.py /tmp/flight-demo.jsonl

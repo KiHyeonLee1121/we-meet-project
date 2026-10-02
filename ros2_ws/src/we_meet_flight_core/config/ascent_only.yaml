@@ -5,5 +5,3 @@ zero_velocity_hold_s: 5.0
 lidar_input_is_vertical_height: false
 lidar_body_down_offset_m: 0.0
 maximum_tilt_rad: 0.35
-
-vision_enabled: false

@@ -16,6 +16,12 @@
 
 라즈베리파이 5 / ROS 2 Jazzy / MAVROS 2.14 / Pixhawk 구성을 제공 자료에서 확인해 재구성했습니다. **기존 시험 코드 원본과 현재 기체에 접속해서 만든 코드는 아니므로, 다운로드한 드론 컴퓨터의 Codex가 아래 현장 적용 절차를 수행해야 합니다.**
 
+## v1/v2 공통 로직 통일
+
+두 브랜치 모두 동일한 **`we_meet_flight_core` 공통 패키지**를 사용합니다. v1의 실제 발행 시각 기반 명령 적분·라이다 raw 보정·상승 안정 조건·단계 제한시간·중단/착륙 인계를 기준으로 통일했습니다. 카메라가 정상이고 목표가 아직 검출되지 않았다면 같은 입력에서 같은 명령을 냅니다. v2는 카메라 상태 확인 및 패널 인식 이후 감속 분기·영상 정렬·5초 중앙 유지만 추가합니다.
+
+**새 공통 패키지를 함께 빌드해야 합니다.** 기존 실행/서비스 이름은 유지됩니다. 세부 비교·기존 v2 설정 키/상태 이름 변경·코어 동일성 확인은 [shared_flight_logic.md](docs/shared_flight_logic.md)를 읽으세요.
+
 ## 내려받은 드론 컴퓨터의 Codex가 먼저 할 일
 
 이 섹션은 라즈베리파이에서 이 저장소를 읽는 Codex에게 전달하는 작업 지침입니다. 기본 작업 범위는 **기존 환경 조사 → 현장 설정 반영 → 빌드 → 비행 없는 검증 → 미확인 항목 보고**입니다. 실제 비행은 이후 사용자의 별도 실행 지시가 있을 때 수행합니다. 확인용이라고 arming, OFFBOARD 전환, FC setpoint 발행, 분사를 실행하지 마세요.
@@ -64,23 +70,24 @@ ros2 service list
 
 ### 3. 무엇을 어디에 설정하는가
 
-YAML 경로의 공통 앞부분은 `ros2_ws/src/we_meet_flight/config/`입니다. 각 프로필은 독립 파일이며, 생략한 값은 `we_meet_flight/config.py`의 기본값을 사용합니다. 한 프로필을 수정해도 다른 프로필에 자동 반영되지 않습니다.
+YAML 경로의 공통 앞부분은 `ros2_ws/src/we_meet_flight/config/`입니다. 각 프로필은 독립 파일이며, 생략한 값은 `we_meet_flight_core/config.py` 공통 기본값과 `we_meet_flight/config.py` 영상 기본값을 사용합니다. 한 프로필을 수정해도 다른 프로필에 자동 반영되지 않습니다.
 
 | 설정 위치 | 정확한 이름·기본값 | 현장에서 확인·반영할 내용 |
 |---|---|---|
 | launch 인자 | `mavros_namespace=/mavros` | 실제 MAVROS prefix. 예상 상태 토픽·서비스가 이 prefix 아래 존재해야 함 |
+| launch 인자 | `estimator_topic=/mavros/estimator_status` | 실제 추정기 상태 토픽. 기본 경로는 MAVROS namespace에 맞춰 연결 |
 | launch 인자 | `lidar_topic=/distance/filtered` | 실제 `sensor_msgs/msg/Range` 입력. 목표 3m 측정 가능 여부와 메시지 min/max 범위 확인 |
 | launch 인자 | `image_topic=/camera/image_raw` | 실제 `sensor_msgs/msg/Image` raw 입력. BGR/RGB/mono8, stamp, 주기 확인. compressed 전용이면 raw 변환 연결 필요 |
 | launch 인자 | `log_directory=~/flight_logs/test_flying_v2` | ROS 실행 계정의 실제 저장 위치·쓰기 권한·공간. Docker라면 호스트에 보존되는 mount인지 확인 |
 | 선택적 `camera_source` 노드 인자 | `backend=picamera2`, `device=0`, `rotation_degrees=180` | 실제 CSI/USB 경로·접근 권한·회전. 기존 영상에서 이미 회전했다면 중복 회전하지 않음 |
 | YAML | `image_to_body: [[0,-1],[-1,0]]` | 영상 오차를 body 전방/좌측으로 바꾸는 행렬. 실제 최종 영상 방향을 확인해 조정 |
-| YAML, 세 프로필 각각 | `lidar_input_is_vertical_height: true` | 드라이버가 기울기·장착 오프셋까지 이미 보정한 수직높이인지 소스로 확인. 단순 거리 필터이면 `false` |
+| YAML, 세 프로필 각각 | `lidar_input_is_vertical_height: false` | 기존 필터는 raw 거리 평활화만 함. 실제 드라이버가 기울기·오프셋까지 이미 보정한 높이면 `true` |
 | YAML, 세 프로필 각각 | `lidar_body_down_offset_m: 0.0` | raw 입력일 때 기체 기준점 아래의 센서 장착 거리(m). 0은 측정 결과가 아닌 예시 기본값 |
 | YAML, 세 프로필 각각 | `maximum_tilt_rad: 0.35` | 입력 처리를 허용하는 roll/pitch 범위. 비스듬히 설치된 센서를 이 값으로 교정하지 않음 |
 | YAML / Config 기본값 | `yaw_kp=1.0`, `yaw_max_rate_rad_s=0.35` | 기존 `yaw_rate_command()`와 설정을 유지. 현재 기체 코드의 값과 다르면 근거를 확인해 반영 |
 | YAML / Config 기본값 | Z의 `vertical_kp=0.6`, `vertical_kd=0.15`, `vertical_speed_mps=0.25`, `vertical_accel_mps2=0.5` | 기존 고도 제어 설정과 센서 단위를 확인. 코드의 기본값을 현장 검증값으로 표시하지 않음 |
-| YAML | `target_range_m=3.0`, `approach_distance_m=5.0`, `hover_s=5.0` | 시험 사양. 5m는 명령 적분 예산, 3m는 라이다 반사면 기준 보정 높이 |
-| YAML / Config 기본값 | `cruise_speed_mps=0.35`, `horizontal_accel_mps2=0.25`, `visual_max_speed_mps=0.12`, `visual_gain_mps=0.35` | 새 시험의 초기값. 실제 이동거리·제동 성능을 교정한 값이 아님 |
+| YAML | `target_height_m=3.0`, `commanded_target_distance_m=5.0`, `zero_velocity_hold_s=5.0` | 시험 사양. 5m는 명령 적분 예산, 3m는 라이다 반사면 기준 보정 높이 |
+| YAML / Config 기본값 | `forward_speed_mps=0.35`, `horizontal_accel_mps2=0.25`, `visual_max_speed_mps=0.12`, `visual_gain_mps=0.35` | 새 시험의 초기값. 실제 이동거리·제동 성능을 교정한 값이 아님 |
 | YAML | `center_half_width=0.15`, `center_half_height=0.15` | 화면 중앙 가로·세로 30% 허용 영역 유지. 실제 미터 단위 허용 오차가 아님 |
 | YAML | `panel_dark_threshold=130`, 면적/종횡비/어두운 픽셀 비율, `acquisition_frames=3` | 실제 패널 사진·영상으로 검출과 오인식을 점검해 조정 |
 | YAML / Config 기본값 | `sensor_timeout_s=0.3`, `camera_timeout_s=0.3`, `state_timeout_s=2.5`, `maximum_tick_gap_s=0.2` | 수신·처리 지연과 시계 동기 확인. 실행 오류를 없애기 위해 freshness 검사를 삭제하거나 무작정 완화하지 않음 |
@@ -132,7 +139,7 @@ ros2 topic hz /camera/image_raw
 |---|---|
 | 시작 | 지상·disarm·센서 상태를 확인하고 안정된 yaw를 한 번 저장 |
 | 상승 | 라이다 기반 보정 높이 약 3m까지 상승, XY 속도 0, 같은 yaw 유지 |
-| 안정 대기 | 라이다 거리·거리 변화율·yaw가 2초간 안정되면 전진 |
+| 안정 대기 | 높이오차 ±0.10m·변화율 ±0.05m/s·yaw오차 ±5도가 연속 2초 안정되면 전진 |
 | 접근 | 출발 yaw를 기준으로 최대 0.35m/s, 최종 발행 명령 적분으로 약 5m의 전진 예산 관리 |
 | 패널 검출 | 서로 다른 3개 영상에서 같은 어두운 사각형 패널을 확인하면 전진 감속 |
 | 영상 정렬 | 현재 yaw로 영상 오차를 ENU 속도로 변환, 최대 0.12m/s |
@@ -143,12 +150,13 @@ ros2 topic hz /camera/image_raw
 
 `baseline.yaml`은 카메라 없이 **상승 → 속도 명령 적분 5m → 감속 → 5초 대기 → 착륙**을 실행합니다. 먼저 기존 yaw 시험을 이 프로필로 확인할 수 있습니다.
 
-**5m는 실제 이동거리의 측정값이 아닙니다.** `commanded_distance_m`은 실제 발행한 최종 전방 속도를 단조 증가 시각의 dt로 적분한 값입니다. 감속 거리를 포함하며, 영상 전환 뒤 정렬 거리는 이 값에 추가하지 않습니다. GPS/local XY 위치는 로그에만 기록합니다. FC의 EKF/GNSS 설정은 변경하지 않으며, 속도 제어 자체도 FC의 추정 속도에 의존할 수 있습니다. 상승 중 XY 속도 0 역시 GPS 없는 실제 위치 고정을 보장하지 않습니다.
+**5m는 실제 이동거리의 측정값이 아닙니다.** `commanded_distance_m`은 실제 발행한 이전 최종 전방 속도를 실제 local publish 시각 사이의 monotonic dt로 적분한 값입니다. 감속 거리를 포함하며, 영상 전환 뒤 정렬 거리는 이 값에 추가하지 않습니다. GPS/local XY 위치는 로그에만 기록합니다. FC의 EKF/GNSS 설정은 변경하지 않으며, 속도 제어 자체도 FC의 추정 속도에 의존합니다. 상승 중 XY 속도 0 역시 GPS 없는 실제 위치 고정을 보장하지 않습니다.
 
-3m는 **라이다가 보는 면에서 기체 기준점까지의 수직 높이 목표**입니다. `lidar_input_is_vertical_height: true`는 입력 드라이버에서 기울기·장착 오프셋이 이미 보정됐다는 뜻이며 기본 예시 설정입니다. 실제 `/distance/filtered`가 단순 거리 필터 값이면 `false`로 바꾸고 `lidar_body_down_offset_m`(기체 기준점 아래의 센서 거리)을 측정하세요. raw 입력은 `(거리 + 오프셋) × cos(roll) × cos(pitch)`로 한 번만 보정합니다. 하향 body 축과 정렬된 라이다·평탄한 면을 전제로 하며 다른 설치각이면 별도 외부 보정이 필요합니다. `lidar_geometry_verified`는 이 확인을 마쳤다는 표시입니다. 지면에서 패널 위로 넘어갈 때 라이다 반사면 높이가 바뀌면 고도 제어에도 영향이 생깁니다. 이번 시험은 평탄한 지면의 낮고 고정된 단일 패널, 하향 카메라·라이다 배치부터 확인하는 구성입니다.
+3m는 **라이다가 보는 면에서 기체 기준점까지의 수직 높이 목표**입니다. `lidar_input_is_vertical_height: true`는 입력 드라이버에서 기울기·장착 오프셋이 이미 보정됐다는 뜻입니다. 기본은 `false`이며 기존 필터의 raw 거리 입력에 맞췄습니다. raw 입력이라면 `lidar_body_down_offset_m`(기체 기준점 아래의 센서 거리)을 측정하세요. raw 입력은 `(거리 + 오프셋) × cos(roll) × cos(pitch)`로 한 번만 보정합니다. 하향 body 축과 정렬된 라이다·평탄한 면을 전제로 하며 다른 설치각이면 별도 외부 보정이 필요합니다. `lidar_geometry_verified`는 이 확인을 마쳤다는 표시입니다. 지면에서 패널 위로 넘어갈 때 라이다 반사면 높이가 바뀌면 고도 제어에도 영향이 생깁니다. 이번 시험은 평탄한 지면의 낮고 고정된 단일 패널, 하향 카메라·라이다 배치부터 확인하는 구성입니다.
 
 ## 구성
 
+- `ros2_ws/src/we_meet_flight_core/`: v1/v2 동일한 명령 적분·비행 제어·센서/FC 어댑터·로그
 - `ros2_ws/src/we_meet_flight/`: ROS 2 패키지, 단일 속도 발행 노드, 선택적 카메라 입력 노드
 - `config/baseline.yaml`, `config/panel_approach.yaml`: 시험 설정
 - `tools/inspect_panel.py`: 저장된 사진/영상에서 OpenCV 검출 결과 확인
@@ -166,7 +174,7 @@ ros2 topic hz /camera/image_raw
 sudo apt-get install python3-opencv python3-numpy python3-yaml ros-jazzy-mavros-msgs
 cd we-meet-project/ros2_ws
 source /opt/ros/jazzy/setup.bash
-colcon build --symlink-install --packages-select we_meet_flight
+colcon build --symlink-install --packages-select we_meet_flight_core we_meet_flight
 source install/setup.bash
 ```
 
@@ -266,6 +274,7 @@ python3 tools/replay_commands.py ~/flight_logs/test_flying_v2/<run_id>/commands.
 
 ```bash
 python3 -m pip install -r requirements-test.txt
+python3 tools/verify_shared_core.py
 python3 -m unittest discover -s tests -v
 python3 tools/offline_demo.py --output /tmp/visual_trial.jsonl
 python3 tools/offline_demo.py --baseline --output /tmp/baseline_trial.jsonl
@@ -286,3 +295,5 @@ python3 tools/offline_demo.py --baseline --output /tmp/baseline_trial.jsonl
 - 2026-10-02: README 서두에 브랜치 목적·시험 순서 추가. 드론 컴퓨터 Codex용 환경 조사, 설정값/경로 표, 현장 측정 구분, 무비행 검증 및 전달 절차 정리.
 
 - 2026-10-02: 진단·수동/자율 ULog 근거로 속도/yaw 시험 재구성, OpenCV 단일 패널 감속·정렬·5초 유지 추가. 상승 단독/5m/영상 시험 프로필, 자동 로그·명령 적분 재현, 무비행 검증 추가.
+
+- 2026-10-02: v1/v2 공통 제어를 we_meet_flight_core 0.2.0으로 통일. actual publish 적분·raw 라이다 기본값·안정/중단 조건·LAND 인계 공유. v2 카메라 hook, 명령 일치 검증 및 설정 이전 안내 추가.

@@ -1,18 +1,20 @@
-# 검증 기록
+# v1/v2 공통화 검증 (0.2.0)
 
-2026-10-02, 이 개발 환경에서 다음 항목을 확인했습니다.
+2026-10-02, Python 3.12·OpenCV 5.0.0·NumPy 2.5.3 개발 환경에서 수행했습니다.
 
-- 자율 log154 및 수동 13개 raw ULog를 pyulog 1.2.4로 열어 주요 모드와 설정 확인
-- Python 3.12, OpenCV 5.0.0, NumPy 2.5.3 환경에서 `unittest` **30개 통과**
-- 전체 Python 파일 문법 컴파일 성공
-- camera-free 합성 시험: 5m 명령 예산에서 감속 후 5초 유지·착륙 종료; 최종 명령 적분 약 4.988m
-- 실제 OpenCV를 사용한 합성 영상 시험: 패널 검출 후 감속·영상 좌우 정렬·5초 유지·착륙 종료
+- v1 **37개**, v2 **59개** unittest 통과. 공통 flight/adapter 36개 및 manifest 검사를 양쪽에서 동일하게 실행했고, v2에는 command parity·visual mission·OpenCV/추적·설정 이전·camera adapter 검증을 추가했습니다.
+- 공통 패키지 **12개 파일** SHA256 완전 일치: `verify_shared_core.py --other ...` 통과.
+- vision=false 전체 trial의 command/state/distance, 건강한 영상과 목표 미검출 상태의 BRAKE 종료 직전까지 command/state/distance 일치. 독립 core/v2 controller 인스턴스에 같은 센서 이력·불규칙 timer·dispatch 지연 입력.
+- 정상 20Hz camera-free 합성 시험: 명령거리 **4.970m**; 불규칙 **4.960325m**; 상승 단독 **0m**. 모두 5초 zero-command 유지 후 LAND 및 COMPLETE.
+- 실제 OpenCV 사용 합성 영상: ADVANCE→BRAKE→ALIGN→VISUAL_HOLD→LANDING→COMPLETE, `panel_centered_5s`. 접근 명령거리 **4.8825m**이며 영상 전환 때문에 camera-free 5m와 다릅니다.
+- v2 baseline 합성 시험도 **4.970m**, `expected_5m_zero_command_5s`, COMPLETE.
+- 기록의 실제 publish 시각 재적분 결과와 누적 command distance 일치, invalid interval 0.
+- 전체 Python 문법 컴파일, setup의 package/data_files, XML package 이름·공통 의존성, YAML 로드 및 launch 경로 정적 확인.
 
-시험은 고정 yaw의 모든 구간 적용, 실제 발행 여부에 따른 적분, 타이머 지연, 센서 invalid/stale, heading innovation, 조종권 전환 후 재진입 금지, 패널 없는 경우의 실패, 연속 중앙 유지 시간, 패널 상실, 중복·오래된 영상, target lock, 이미지 stride/encoding, dry-run 서비스 쓰기 금지와 하나의 xyz+yaw 메시지 생성을 확인합니다.
+공통 검증은 yaw 고정/wrap/ENU 부호, 실제 발행 시각 적분·부호·예측 중복 방지·감속 면적, prestream/모드/arming 실관측 구분, raw 라이다/offset/기울기·중복 보정 방지·rate 창 준비, estimator/stale/critical/제어권 변경·phase timeout·발행 실패·긴 공백, 첫 실제 zero-command 발행 타이머, LAND 인계/거부·재진입 금지, run_id 로그와 GPS/XY가 제어 입력에 없는지입니다.
 
-ROS 어댑터 시험은 메시지/서비스 test double을 사용하는 단위 시험입니다. 실제 ROS 2 executor, DDS, MAVROS service, colcon 통합 시험이 아닙니다. 개발 환경에 ROS/Pi 카메라 장치가 없어서 실제 ROS 실행·카메라 입력·arming·실비행은 수행하지 않았습니다. 실제 패널 사진/영상도 제공되지 않았으므로 현장 영상의 인식률·오인식률은 아직 측정하지 못했습니다.
+영상 검증은 패널 획득 후 공통 ramp 감속, 현재 yaw를 이용한 영상 변환, 중앙/고도/yaw/신선도 중 하나가 깨졌을 때 5초 초기화, 실제 zero-command 발행 후 타이머 시작, BRAKE·ALIGN 중 target loss, stale camera·invalid estimator·critical, 패널 없는 예산 소진, align phase timeout, target lock·중복 frame·stride·clipped rectangle 거부, live camera axes gate와 최신 영상 queue/처리 오류의 health 미갱신입니다.
 
-합성 이동 모델은 명령을 곧바로 이동 속도로 가정하며 바람, 지연, 기체 관성, 센서 오차를 재현하지 않습니다. 따라서 합성 시험의 실제 좌표는 실기체 정확도의 근거로 사용하면 안 됩니다.
+어댑터 시험은 ROS 메시지/서비스/publisher test double입니다. 실제 ROS 2 executor/DDS/MAVROS/colcon 통합 시험이 아닙니다. Pi 카메라 장치·실제 ROS 환경이 없으므로 실제 카메라 입력·arming·비행은 수행하지 않았습니다. 현장 영상의 인식/오인식률·실제 5m 접근/제동/정지 정확도도 미측정입니다.
 
-
-추가 시험은 상승 단독 프로필, 추정기 무효 시 stream 중단, raw 라이다 수직 투영/오프셋과 중복 보정 방지, 불규칙 dt·음의 속도 적분, run_id별 로그 파일 및 기록 명령의 사후 적분 재현을 확인합니다.
+합성 plant는 명령속도를 바로 실제 속도로 가정하여 바람·관성·센서 오차를 재현하지 않습니다. 실기체 검증은 README의 기체 설정 확인과 상승 단독→baseline→영상 시험 순서, 원본 ULog·run_id·외부 측정으로 수행해야 합니다.

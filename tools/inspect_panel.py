@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'ros2_ws/src/we_meet_flight'))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'ros2_ws/src/we_meet_flight_core'))
 import cv2
 from we_meet_flight.config import load_config
 from we_meet_flight.vision import PanelDetector

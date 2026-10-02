@@ -7,6 +7,7 @@ import math
 from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'ros2_ws/src/we_meet_flight'))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'ros2_ws/src/we_meet_flight_core'))
 import cv2
 import numpy as np
 from we_meet_flight.config import Config
@@ -19,7 +20,7 @@ def run_demo(output, vision=True):
     m = Mission(c)
     s = Sensors(estimator_valid=True, estimator_age=0, connected=True, armed=False, mode='POSCTL', landed=True,
                 state_age=0, landed_age=0, yaw=0, yaw_age=0, imu_age=0,
-                range_m=0.25, range_rate=0, range_age=0,
+                height_m=0.25, height_rate_mps=0, range_age=0,
                 battery_remaining=1, battery_age=0, camera_age=0)
     detector, tracker = PanelDetector(c), TargetTracker(c)
     now = 0.0
@@ -27,8 +28,22 @@ def run_demo(output, vision=True):
     m.start(now, s, 0.0)
     frames = 0
     rows = []
-    for i in range(2400):
+    previous = None
+    for i in range(3500):
         now += 0.05
+        if previous and previous.publish:
+            x += previous.vx*0.05
+            y += previous.vy*0.05
+            z += previous.vz*0.05
+            s.yaw += previous.yaw_rate*0.05
+        if s.mode == 'AUTO.LAND':
+            z = max(0.25, z-0.3*0.05)
+            if z <= 0.25:
+                s.armed, s.landed = False, True
+        elif s.armed and z > 0.3:
+            s.landed = False
+        old_height = s.height_m
+        s.height_m, s.height_rate_mps = z, (z-old_height)/0.05
         if vision and i % 2 == 0:
             frame = np.full((480, 640, 3), 220, dtype=np.uint8)
             # A simple downward-camera planar projection; NOT aircraft dynamics.
@@ -41,31 +56,22 @@ def run_demo(output, vision=True):
             frames += 1
             s.observation = tracker.update(detector.detect(frame), now, frames)
         command = m.step(now, s)
-        m.acknowledge_published(command.publish)
+        segment = m.record_publish(command, now) if command.publish else None
         if command.request == 'OFFBOARD':
             s.mode = 'OFFBOARD'
         elif command.request == 'ARM':
             s.armed = True
         elif command.request == 'LAND':
             s.mode = 'AUTO.LAND'
-        if command.publish:
-            x += command.vx*0.05
-            y += command.vy*0.05
-            z += command.vz*0.05
-        if s.mode == 'AUTO.LAND':
-            z = max(0.25, z-0.3*0.05)
-            if z <= 0.25:
-                s.armed, s.landed = False, True
-        elif s.armed and z > 0.3:
-            s.landed = False
-        previous_range = s.range_m
-        s.range_m, s.range_rate = z, (z-previous_range)/0.05
         s.camera_age = now-s.observation.received_s if vision and s.observation else 0
-        rows.append({'time_s': now, 'state': m.state, 'command': asdict(command),
+        rows.append({'kind': 'control', 'time_s': now, 'published_at_s': now if command.publish else None,
+                     'published': command.publish, 'integrate_distance': command.integrate_distance,
+                     'integral_segment': segment, 'yaw_ref': m.yaw_ref, 'maximum_tick_gap_s': c.maximum_tick_gap_s, 'state': m.state, 'command': asdict(command),
                      'commanded_distance_m': m.commanded_distance_m,
                      'observation': asdict(s.observation) if s.observation else None,
                      'synthetic_ground_truth_xyz': [x, y, z], 'result': m.result})
-        if m.state in {'DONE', 'FAILED', 'RELEASED'}:
+        previous = command
+        if m.state in {'COMPLETE', 'FAILED', 'RELEASED'}:
             break
     if output:
         Path(output).write_text('\n'.join(json.dumps(row) for row in rows)+'\n')
@@ -83,5 +89,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
     result = run_demo(args.output, not args.baseline)
     print(json.dumps(result, indent=2))
-    if result['state'] != 'DONE' or result['result'] not in {'panel_centered_5s', 'command_distance_hover_5s'}:
+    if result['state'] != 'COMPLETE' or result['result'] not in {'panel_centered_5s', 'expected_5m_zero_command_5s'}:
         raise SystemExit(1)

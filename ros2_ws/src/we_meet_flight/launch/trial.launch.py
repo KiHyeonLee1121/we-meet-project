@@ -14,6 +14,7 @@ def generate_launch_description():
         DeclareLaunchArgument('lidar_geometry_verified', default_value='false'),
         DeclareLaunchArgument('camera_axes_verified', default_value='false'),
         DeclareLaunchArgument('image_topic', default_value='/camera/image_raw'),
+        DeclareLaunchArgument('estimator_topic', default_value='/mavros/estimator_status'),
         DeclareLaunchArgument('lidar_topic', default_value='/distance/filtered'),
         DeclareLaunchArgument('mavros_namespace', default_value='/mavros'),
         DeclareLaunchArgument('log_directory', default_value='~/flight_logs/test_flying_v2'),
@@ -25,4 +26,5 @@ def generate_launch_description():
             'camera_axes_verified': ParameterValue(LaunchConfiguration('camera_axes_verified'), value_type=bool),
             'image_topic': LaunchConfiguration('image_topic'), 'lidar_topic': LaunchConfiguration('lidar_topic'),
             'mavros_namespace': LaunchConfiguration('mavros_namespace'),
+            'estimator_topic': LaunchConfiguration('estimator_topic'),
             'log_directory': LaunchConfiguration('log_directory')}])])
