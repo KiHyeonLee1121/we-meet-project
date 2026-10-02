@@ -1,0 +1,30 @@
+# Conservative reconstructed trial; source logs are NOT calibration of this speed.
+vision_enabled: true
+target_range_m: 3.0
+approach_distance_m: 5.0
+cruise_speed_mps: 0.35
+horizontal_accel_mps2: 0.25
+hover_s: 5.0
+yaw_kp: 1.0
+yaw_max_rate_rad_s: 0.35
+# Central 30% of the image in each direction (centre +/- 15%).
+center_half_width: 0.15
+center_half_height: 0.15
+visual_gain_mps: 0.35
+visual_max_speed_mps: 0.12
+# Image right -> body right, image down -> body rear AFTER image rotation.
+# This must be verified on this installed camera before enabling live flight.
+image_to_body: [[0.0, -1.0], [-1.0, 0.0]]
+min_panel_area_fraction: 0.004
+max_panel_area_fraction: 0.75
+min_panel_aspect: 1.0
+max_panel_aspect: 3.5
+panel_dark_threshold: 130
+min_panel_dark_fraction: 0.55
+acquisition_frames: 3
+
+# Confirm the input driver actually returns corrected vertical height.
+# If it only filters raw slant distance, set false and measure the offset.
+lidar_input_is_vertical_height: true
+lidar_body_down_offset_m: 0.0
+maximum_tilt_rad: 0.35

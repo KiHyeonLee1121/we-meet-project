@@ -1,0 +1,15 @@
+# Camera-free velocity/yaw test before the visual stage.
+vision_enabled: false
+target_range_m: 3.0
+approach_distance_m: 5.0
+cruise_speed_mps: 0.35
+horizontal_accel_mps2: 0.25
+hover_s: 5.0
+yaw_kp: 1.0
+yaw_max_rate_rad_s: 0.35
+
+# Confirm the input driver actually returns corrected vertical height.
+# If it only filters raw slant distance, set false and measure the offset.
+lidar_input_is_vertical_height: true
+lidar_body_down_offset_m: 0.0
+maximum_tilt_rad: 0.35
